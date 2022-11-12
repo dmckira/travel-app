@@ -1,199 +1,151 @@
 import { StatusBar } from 'expo-status-bar';
-import * as React from 'react';
-import * as Location from 'expo-location';
-import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal';
 import MapView, {Marker,Polyline,LatLng} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import {GOOGLE_MAPS_KEY} from '@env';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { GOOGLE_MAPS_KEY } from '@env';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectOrigin, selectDestination, setTravelTimeInformation } from '../slices/navSlice';
+import { Icon } from 'react-native-elements/dist/icons/Icon';
+
+//Components
+import TaxiForm from "../components/TaxiForm";
+import TaxiDescription from "../components/TaxiDescription";
+import WaitingTaxi from '../components/WaitingTaxi';
 
 const carImage = require('../assets/images/car.png');
 const userImage = require('../assets/images/user.png');
 
-function Map ({navigation}) {
-  
-  const [open, setOpen] = React.useState(false)
+const Map = () => {
+
+  const Stack = createNativeStackNavigator();
 
   const [destinoName, setDestinoName] = React.useState('')
 
-  //const mapRef = React.useRef(null)
+  const mapRef = useRef(null)
 
-  const [origin, setOrigin] = React.useState({
-    latitude: 0, 
-    longitude: 0,
-  })
+  const dispatch = useDispatch();
 
-  const [destination, setDestination] = React.useState({
-    latitude: 0,
-    longitude: 0,
-  })
+  const origin = useSelector(selectOrigin);
+
+  const destination = useSelector(selectDestination);
 
   function onPressDirection(details) {
     setDestinoName(details.name)
     setDestination(details.position);
   }
 
-  /* React.useEffect( () => {
+  useEffect( () => {
     if (!origin || !destination) return;
-    console.log('Zoom');
     //Zoom
     mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-    });
-  }, [origin, destination]) */
+    },1000);
+  }, [origin, destination]);
 
-  React.useEffect( ( ) =>{
-    getLocationPermission();
-  }, [])
+  useEffect(() => {
+    if (!origin || !destination) return;
 
-  async function getLocationPermission(){
-    let {status} = await Location.requestForegroundPermissionsAsync();
-    if(status !== 'granted'){
-      alert('Permisos denegados');
-      return;
-    }
-    let location = await Location.getCurrentPositionAsync({})
-    const current = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude
-    }
-    setOrigin(current);
-  }
+    const getTravelTime = async() => {
+      fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.location}&destinations=${destination.location}&key=${GOOGLE_MAPS_KEY}`)
+      .then((res) => res.json())
+      .then(data => {
+        dispatch(setTravelTimeInformation(data.rows[0].elements[1]))
+      })
+    };
+
+    getTravelTime();
+  }, [origin, destination, GOOGLE_MAPS_KEY]);
   
   return (
     <View style={styles.container}>
-      {/* <Modal 
-        animationIn='slideInUp'
-        isVisible={open}
-        avoidKeyboard={true}
-        style={styles.modal}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Home')} 
+        style={styles.menu}
       >
-        <View style={styles.modalBackground}>
-            <View style={styles.modalView}>
-            <GooglePlacesAutocomplete
-                placeholder='Destino'
-                fetchDetails
-                onPress={(data, details = null) => {
-                  onPressDirection({
-                    name: details?.name,
-                    position: {
-                      latitude: details?.geometry.location.lat || 0,
-                      longitude: details?.geometry.location.lng || 0,
-                    },
-                  })
-                  setOpen(false);
-                }}
-                query={{
-                  key: GOOGLE_MAPS_KEY,
-                  language: 'es',
-                }}
-              />
-              <View style={ styles.containerInput }>
-              </View>
-            </View>
-        </View>
-      </Modal> */}
+        <Icon color='white' name='menu' />
+      </TouchableOpacity>
       <View style={styles.containerMap}>
         <MapView
-          //ref={mapRef}
+          ref={mapRef}
           style={styles.map}
           mapType="mutedStandard"
           initialRegion={{
-            latitude: origin.latitude !== 0 ? origin.latitude : null,
-            longitude: origin.longitude !== 0 ? origin.longitude : null,
+            latitude: origin.location.lat,
+            longitude: origin.location.lng,
             latitudeDelta: 0.005,
             longitudeDelta: 0.005,
           }}
         >
-        <Marker
-          image={userImage}
-          draggable={true}
-          coordinate={origin}
-          identifier='origin'
-        />
-        {destination.latitude !== 0 && destination.longitude !== 0 ? (
-        <>
-          <Marker
-            draggable={true}
-            coordinate={destination}
-            identifier='destination'
-          />
-          <MapViewDirections
-            origin = {origin}
-            destination = {destination}
-            apikey = {GOOGLE_MAPS_KEY}
-            strokeColor = "orange"
-            strokeWidth={3}
-          />
-        </>
-        ) : null}
+          {origin?.location && (
+            <Marker
+              image={userImage}
+              draggable={true}
+              coordinate={{
+                latitude: origin.location.lat,
+                longitude: origin.location.lng,
+              }}
+              identifier='origin'
+            />
+          )}
+          {destination?.location && (
+            <Marker
+              draggable={true}
+              coordinate={{
+                latitude: destination.location.lat,
+                longitude: destination.location.lng,
+              }}
+              identifier='destination'
+            />
+          )}
+          {origin && destination && (
+            <MapViewDirections
+              origin = {{
+                latitude: origin.location.lat,
+                longitude: origin.location.lng,
+              }}
+              destination = {{
+                latitude: destination.location.lat,
+                longitude: destination.location.lng,
+              }}
+              apikey = {GOOGLE_MAPS_KEY}
+              strokeColor = "orange"
+              strokeWidth={3}
+            />
+          )}
         </MapView>
       </View>
       <View style={styles.containerForm}>
-        <SafeAreaView style={styles.containerHeader}>
-          <Text style={styles.textContent}>Travelapp</Text>
-          <View style={styles.border}/>
-        </SafeAreaView>
-        <View style={ styles.containerInput }>
-          {/* <TextInput
-            placeholderTextColor='#b5b2b8'
-            style={[styles.input, styles.labelContainer]}
-            placeholder='Destino'
-            autoCapitalize="words"
-            onPressIn={() => setOpen(true)}
-            value={destinoName}
-          /> */}
-          <GooglePlacesAutocomplete
-            placeholder='Destino'
-            styles={inputDestinationStyles}
-            fetchDetails
-            nearbyPlacesAPI='GooglePlacesSearch'
-            returnKeyType={"search"}
-            minLength={2}
-            enablePoweredByContainer={false}
-            debounce={400}
-            onPress={(data, details = null) => {
-              onPressDirection({
-                name: details?.name,
-                position: {
-                  latitude: details?.geometry.location.lat || 0,
-                  longitude: details?.geometry.location.lng || 0,
-                },
-              })
-              setOpen(false);
-            }}
-            query={{
-              key: GOOGLE_MAPS_KEY,
-              language: 'es',
+        <Stack.Navigator>
+          <Stack.Screen
+            name='TaxiForm'
+            component={TaxiForm}
+            options={{
+              headerShown: false,
             }}
           />
-        </View>
-        <View style={ styles.containerButton }>
-          <Pressable style={ styles.button } disabled={destination === 0 ? true : false} >
-            <Text style={ styles.text }>Solicitar</Text>
-          </Pressable>
-        </View>
+          <Stack.Screen
+            name='WaitingTaxi'
+            component={WaitingTaxi}
+            options={{
+              presentation: 'fullScreenModal',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name='TaxiDescription'
+            component={TaxiDescription}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
       </View>
     </View>
   );
 }
-
-const inputDestinationStyles = StyleSheet.create({
-  container: {
-    paddingTop: 20,
-    flex: 0,
-  },
-  textInput: {
-    backgroundColor: '#DDDDDF',
-    borderRadius: 0,
-    fontSize: 18,
-  },
-  textInputContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 0,
-  }
-});
 
 const styles = StyleSheet.create({
   container: {
@@ -201,42 +153,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   containerMap: {
-    height: '50%',
+    height: '60%',
   },
   containerForm: {
     flex: 1,
     backgroundColor: '#0F6769',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
     /*alignItems: 'stretch',
     justifyContent: 'flex-end',
     height: '30%', */
   },
-  containerHeader: {
-    backgroundColor: '#1D8385',
-  },
-  textContent: {
-    textAlign: 'center',
-    padding: 5,
-    fontSize: 20,
-  },
-  border: {
-    borderTopWidth: 1,
-    borderColor: '#297273',
-    flexShrink: 1,
-  },
   containerInput: {
     margin: 5,
-  },
-  containerButton: {
-    padding: 2,
-    marginTop: 'auto',
-    borderTopWidth: 1,
-    borderColor: '#297273',
-    flexShrink: 1,
   },
   map: {
     /* width: '100%',
     height:'80%' */
     flex: 1,
+  },
+  menu: {
+    backgroundColor: '#1D8385',
+    position: 'absolute',
+    top: 44,
+    left: 22,
+    zIndex: 50,
+    padding: 12,
+    borderRadius: 9999,
   },
   scrollView: {
     flex: 1,
@@ -255,23 +198,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     border: 2,
-  },
-  button: {
-    margin: 10,
-    backgroundColor: '#ff4e40',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 50,
-    elevation: 3,
-  },
-  text: {
-    fontSize: 16,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-    color: '#b5b2b8',
   },
   modal: {
     margin: 20,
