@@ -18,34 +18,22 @@ import WaitingTaxi from '../components/WaitingTaxi';
 const carImage = require('../assets/images/car.png');
 const userImage = require('../assets/images/user.png');
 
-const Map = () => {
-
+const Map = ({navigation}) => {
   const Stack = createNativeStackNavigator();
-
-  const [destinoName, setDestinoName] = React.useState('')
-
-  const mapRef = useRef(null)
-
   const dispatch = useDispatch();
-
   const origin = useSelector(selectOrigin);
-
   const destination = useSelector(selectDestination);
-
-  function onPressDirection(details) {
-    setDestinoName(details.name)
-    setDestination(details.position);
-  }
+  const mapRef = useRef(null);
 
   useEffect( () => {
     if (!origin || !destination) return;
     //Zoom
-    mapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
+    mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
     },1000);
   }, [origin, destination]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!origin || !destination) return;
 
     const getTravelTime = async() => {
@@ -57,7 +45,7 @@ const Map = () => {
     };
 
     getTravelTime();
-  }, [origin, destination, GOOGLE_MAPS_KEY]);
+  }, [origin, destination, GOOGLE_MAPS_KEY]); */
   
   return (
     <View style={styles.container}>
@@ -82,7 +70,6 @@ const Map = () => {
           {origin?.location && (
             <Marker
               image={userImage}
-              draggable={true}
               coordinate={{
                 latitude: origin.location.lat,
                 longitude: origin.location.lng,
@@ -92,7 +79,6 @@ const Map = () => {
           )}
           {destination?.location && (
             <Marker
-              draggable={true}
               coordinate={{
                 latitude: destination.location.lat,
                 longitude: destination.location.lng,

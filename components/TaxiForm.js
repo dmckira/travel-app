@@ -24,7 +24,6 @@ const TaxiForm = ({navigation}) => {
           enablePoweredByContainer={false}
           debounce={400}
           onPress={(data, details = null) => {
-            console.log(data)
             dispatch(
               setDestination({
                 location: details.geometry.location,
