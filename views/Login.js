@@ -1,32 +1,81 @@
 import React from 'react'
 import { ScrollView, View, TextInput, Text, Button, Image, ImageBackground, StyleSheet } from 'react-native';
-
+import {getAuth, createUserWithEmailAndPassword, sigInWithEmailAndPassword} from 'firebase/auth';
+import {initializeApp} from 'firebase/app';
+import { firebaseConfig } from '../firebase-config';
+import { TouchableOpacity } from 'react-native-web';
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
 const travelLogo = require('../assets/images/logotipo-travel.png');
+const [email, setEmail] = React.useState(' ');
+const [password, setPassword] = React.useState(' ');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const handleCreateAccount = () =>{
+  createUserWithEmailAndPassword(auth, email, password)
+  .then(()=>{
+    console.log('account created');
+    const user = userCredential.user;
+    console.log(user);
+  })
+  .catch(error => {
+    console.log(error);
+  })
+}
+
+const handleSignIn = () =>{
+  sigInWithEmailAndPassword(auth, email, password)
+  .then(()=>{
+    console.log('SIGNIN SUCCESS');
+    const user = userCredential.user;
+    console.log(user);
+  })
+  .catch(error => {
+    console.log(error);
+  })
+}
+
+function HomeScreen(){
+
+}
+
+function LoginScreen(){
+  <Text>HolaMundo</Text>
+
+}
+
+
 
 function Login({navigation}) {
   return (
-    <ImageBackground source={background} style={styles.backgroundImage}>
-      <View style={styles.containerImage}>
-        <Image style={styles.imageLogo} source={travelLogo}></Image>
-      </View>
-      <Image style={styles.image} source={imageLogin}></Image>
-      <Text style={styles.register}>
-        Registrarse
-      </Text>
-      <ScrollView>
-        <View>
-          <TextInput placeholder='Correo Electronico' />
-        </View>
-        <View>
-          <TextInput placeholder='Contraseña' />
-        </View>
-        <View>
-          <Button title='Continuar' ></Button>
-        </View>
-      </ScrollView>
-    </ImageBackground>
+      <ImageBackground source={background} style={styles.backgroundImage}>
+  <View style={styles.containerImage}>
+    <Image style={styles.imageLogo} source={travelLogo}></Image>
+  </View>
+  <Image style={styles.image} source={imageLogin}></Image>
+  <Text style={styles.register}>
+    Registrarse
+  </Text>
+  <ScrollView>
+    <View>
+      <TextInput onChangeText={(text)=> setEmail(text)} placeholder='Correo Electronico' />
+    </View>
+    <View>
+      <TextInput onChangeText={(text)=> setPassword(text)} placeholder='Contraseña' />
+    </View>
+    <View>
+      <Button title='Continuar' ></Button>
+    </View>
+    <TouchableOpacity onPress={handleSignIn}>
+      <Text>Login</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={handleCreateAccount}>
+      <Text>Create account</Text>
+    </TouchableOpacity>
+  </ScrollView>
+</ImageBackground>
   );
 }
 

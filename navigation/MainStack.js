@@ -12,9 +12,10 @@ const MainStack = () => {
   return (
       <NavigationContainer>
           <Stack.Navigator initialRouteName='Home'>
-              <Stack.Screen name='Home' component={Home}/>
+              {/* <Stack.Screen name='Home' component={Home}/> */}
+              {/* <Stack.Screen name='Home' component={Home}/> */}
               <Stack.Screen name='Login' component={Login}/>
-              <Stack.Screen name='Map' component={Map}/>
+              {/* <Stack.Screen name='Map' component={Map}/> */}
           </Stack.Navigator>
       </NavigationContainer>
   );

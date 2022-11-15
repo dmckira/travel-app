@@ -42,6 +42,18 @@ function Home ({navigation}) {
                 Taxi
               </Text>
             </TouchableOpacity >
+
+            <TouchableOpacity 
+              style={ styles.item } 
+              onPress={() =>
+              navigation.navigate('register')
+              }>
+              <Icon name="taxi" size={60} color="#929292" />
+              <Text style={styles.bienvenidotxt}>
+                Taxi
+              </Text>
+            </TouchableOpacity >
+
             <TouchableOpacity style={ styles.item }>
               <Icon name="bus" size={60} color="#929292" />
               <Text style={styles.bienvenidotxt}>
