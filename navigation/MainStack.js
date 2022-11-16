@@ -9,6 +9,7 @@ import { setOrigin } from '../slices/navSlice';
 import Map from '../views/Map';
 import Home from '../views/Home';
 import Login from '../views/Login';
+import Register from '../views/Register';
 
 
 const Stack = createNativeStackNavigator();
@@ -45,17 +46,24 @@ const MainStack = () => {
             style={{ flex: 1 }}
             keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
           >
-            <Stack.Navigator initialRouteName='Home'>
+            <Stack.Navigator>
                 <Stack.Screen
-                  name='Home'
-                  component={Home}
+                  name='Login'
+                  component={Login}
                   options={{
                     headerShown: false,
                   }}
                 />
                 <Stack.Screen
-                  name='Login'
-                  component={Login}
+                  name='Register'
+                  component={Register}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Home'
+                  component={Home}
                   options={{
                     headerShown: false,
                   }}

@@ -1,29 +1,63 @@
 import React from 'react'
-import { ScrollView, View, TextInput, Text, Button, Image, ImageBackground, StyleSheet } from 'react-native';
+import { ScrollView, View, TextInput, Text, Button, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { firebase } from '../firebase-config';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../slices/navSlice';
 
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 
 function Login({navigation}) {
+  const dispatch = useDispatch();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  handleSignIn = async (email, password) => {
+    try {
+      const user = await firebase.auth().signInWithEmailAndPassword(email, password)
+      dispatch(setUser({
+        userName: user.user.email,
+      }))
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  }
+
   return (
     <ImageBackground source={background} style={styles.backgroundImage}>
       <View style={styles.containerImage}>
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>
-      <Image style={styles.image} source={imageLogin}></Image>
-      <Text style={styles.register}>
-        Registrarse
-      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <Image style={styles.image} source={imageLogin}></Image>
+          <Text style={styles.register}>
+            Registrarse
+          </Text>
+      </TouchableOpacity>
       <ScrollView>
         <View>
-          <TextInput placeholder='Correo Electronico' />
+          <TextInput
+            onChangeText={(email) => setEmail(email)}
+            placeholder='Correo Electrónico'
+            autoCapitalize='none'
+            autoCorrect={false}
+          />
         </View>
         <View>
-          <TextInput placeholder='Contraseña' />
+          <TextInput
+            onChangeText={(password) => setPassword(password)}
+            placeholder='Contraseña'
+            autoCapitalize='none'
+            autoCorrect={false}
+            secureTextEntry={true}
+          />
         </View>
         <View>
-          <Button title='Continuar' ></Button>
+          <TouchableOpacity onPress={() => handleSignIn(email, password)}>
+            <Text>Iniciar sesión</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ImageBackground>
