@@ -1,13 +1,13 @@
 import React from 'react'
-import { ScrollView, View, TextInput, Text, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Text, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
 
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 
-const Register = () => {
-  const users = firebase.firestore().collection('users');
+const Register = ({navigation}) => {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -34,6 +34,7 @@ const Register = () => {
           .set({
             name,
             email,
+            role,
           })
         })
         .catch((error) => {
@@ -44,6 +45,7 @@ const Register = () => {
         alert(error.message);
       })
       alert('Guardado!');
+      navigation.navigate('Login');
     }
   }
 
@@ -53,38 +55,67 @@ const Register = () => {
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>
       <Image style={styles.image} source={imageLogin}></Image>
-      <Text style={styles.register}>
-        Iniciar sesión
-      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.register}>
+          Iniciar sesión
+        </Text>
+      </TouchableOpacity>
       <ScrollView>
       <View>
-          <TextInput
+          <Input
             onChangeText={(text) => setName(text)}
-            placeholder='Nombre de usuario'
+            placeholder='Nombre'
             autoCapitalize='none'
             autoCorrect={false}
+            inputStyle={{ marginLeft: 15 }}
+            inputContainerStyle={{ borderColor: '#1D8385' }}
+            containerStyle={{ marginTop: 20, paddingLeft: 30, paddingRight: 30, size: 5 }}
+            leftIcon={{ type: 'font-awesome', name: 'user', size: 25, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
         <View>
-          <TextInput
+          <Input
             onChangeText={(text) => setEmail(text)}
-            placeholder='Correo Electronico'
+            placeholder='Correo'
             autoCapitalize='none'
             autoCorrect={false}
+            inputStyle={{ marginLeft: 15 }}
+            inputContainerStyle={{ borderColor: '#1D8385' }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+            leftIcon={{ type: 'font-awesome', name: 'envelope', size: 18, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
         <View>
-          <TextInput
+          <Input
+            onChangeText={(text) => setRole(text)}
+            placeholder='Usuario o Conductor?'
+            autoCapitalize='none'
+            autoCorrect={false}
+            inputStyle={{ marginLeft: 15 }}
+            inputContainerStyle={{ borderColor: '#1D8385' }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+            leftIcon={{ type: 'font-awesome', name: 'users', size: 18, color: '#1D8385', marginLeft: 5 }}
+          />
+        </View>
+        <View>
+          <Input
             onChangeText={(text) => setPassword(text)}
             placeholder='Contraseña'
             autoCapitalize='none'
             autoCorrect={false}
             secureTextEntry={true}
+            inputStyle={{ marginLeft: 15 }}
+            inputContainerStyle={{ borderColor: '#1D8385' }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+            leftIcon={{ type: 'font-awesome', name: 'lock', size: 30, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
-        <View>
-          <TouchableOpacity onPress={handleCreateAccount}>
-            <Text>Registrarse</Text>
+        <View style={ styles.containerButton }>
+          <TouchableOpacity
+            onPress={handleCreateAccount}
+            style={ styles.button }
+          >
+            <Text style={ styles.text }>Registrarse</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -98,12 +129,23 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
+  containerButton: {
+    padding: 2,
+    marginTop: 'auto',
+    flexShrink: 1,
+  },
+  containerCheck: {
+    flex: 1,
+    marginTop: -10,
+    paddingLeft: '30%',
+    paddingRight: '30%' 
+  },
   backgroundImage: {
     width: '100%',
     height: '100%',
   },
   image: {
-    height: '26%',
+    height: '20%',
     width: '100%',
   },
   imageLogo: {
@@ -112,6 +154,23 @@ const styles = StyleSheet.create({
     border: 0,
     marginTop: '10%',
     marginBottom: '10%',
+  },
+  button: {
+    margin: 10,
+    backgroundColor: '#1D8385',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 15,
+    elevation: 3,
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
   },
   register: {
     color: '#ffff',

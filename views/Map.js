@@ -1,13 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity } from 'react-native';
-import Modal from 'react-native-modal';
-import MapView, {Marker,Polyline,LatLng} from 'react-native-maps';
+import React, { useRef } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GOOGLE_MAPS_KEY } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOrigin, selectDestination, setTravelTimeInformation } from '../slices/navSlice';
+import { selectOrigin, selectDestination } from '../slices/navSlice';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 
 //Components
@@ -20,33 +18,10 @@ const userImage = require('../assets/images/user.png');
 
 const Map = ({navigation}) => {
   const Stack = createNativeStackNavigator();
-  const dispatch = useDispatch();
   const origin = useSelector(selectOrigin);
   const destination = useSelector(selectDestination);
   const mapRef = useRef(null);
 
-  useEffect( () => {
-    if (!origin || !destination) return;
-    //Zoom
-    mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
-      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-    },1000);
-  }, [origin, destination]);
-
-  /* useEffect(() => {
-    if (!origin || !destination) return;
-
-    const getTravelTime = async() => {
-      fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.location}&destinations=${destination.location}&key=${GOOGLE_MAPS_KEY}`)
-      .then((res) => res.json())
-      .then(data => {
-        dispatch(setTravelTimeInformation(data.rows[0].elements[1]))
-      })
-    };
-
-    getTravelTime();
-  }, [origin, destination, GOOGLE_MAPS_KEY]); */
-  
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -99,6 +74,13 @@ const Map = ({navigation}) => {
               apikey = {GOOGLE_MAPS_KEY}
               strokeColor = "orange"
               strokeWidth={3}
+              onReady={result => {
+                mapRef.current.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    top: 50, right: 50, bottom: 50, left: 50
+                  }
+                })
+              }}
             />
           )}
         </MapView>

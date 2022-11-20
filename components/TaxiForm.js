@@ -2,18 +2,36 @@ import React from 'react'
 import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {GOOGLE_MAPS_KEY} from '@env';
-import { useDispatch } from 'react-redux';
-import { setDestination } from '../slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectOrigin, selectDestination, setDestination, selectUser } from '../slices/navSlice';
+import { firebase } from '../firebase-config';
 
 const TaxiForm = ({navigation}) => {
 
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const origin = useSelector(selectOrigin);
+  const destination = useSelector(selectDestination);
+
+  const requestDriver = async () => {
+    if (!origin || !destination || !user) return;
+
+    await firebase.firestore().collection('movements')
+      .doc(firebase.auth().currentUser.uid)
+      .set({
+        user: user.user,
+        origin,
+        destination,
+        state: 'Pending',
+      })
+    navigation.navigate('WaitingTaxi')
+  }
 
   return (
     <SafeAreaView style={styles.containerHeader}>
       <Text style={styles.textContent}>T R A V E L A P P</Text>
       <View style={styles.border}/>
-      <View style={ styles.containerInput }>
+      <View>
         <GooglePlacesAutocomplete
           placeholder='Destino'
           styles={inputDestinationStyles}
@@ -40,7 +58,7 @@ const TaxiForm = ({navigation}) => {
       <View style={ styles.containerButton }>
         <Pressable
           style={ styles.button }
-          onPress={() => navigation.navigate('WaitingTaxi')}
+          onPress={requestDriver}
         >
           <Text style={ styles.text }>Solicitar</Text>
         </Pressable>
@@ -87,6 +105,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '900',
     color: '#C2645D',
+    textShadowColor: 'white',
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: 5,
   },
   border: {
     borderTopWidth: 1,

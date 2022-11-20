@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../slices/navSlice';
 
-const background = require('../assets/images/Interfacesfondos.jpg');
+const background = require('../assets/images/imglogin.jpg');
 const travelImage = require('../assets/images/fondoverdetravel.png');
 
 const Row = ({ children }) => (
@@ -17,7 +17,7 @@ function Home ({navigation}) {
   return (
     <ImageBackground source={background} style={styles.backgroundImage}>
       <Text style={styles.bienvenidotxt}>
-        Bienvenid@ {user.userName}
+        Bienvenid@ {user.user.name}
       </Text>
       <Image style={styles.image} source={travelImage}></Image>
       <Text style={styles.welcome}>

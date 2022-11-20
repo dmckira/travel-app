@@ -10,7 +10,8 @@ import Map from '../views/Map';
 import Home from '../views/Home';
 import Login from '../views/Login';
 import Register from '../views/Register';
-
+import Driver from '../views/Driver';
+import DriverMap from '../views/DriverMap';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +35,11 @@ const MainStack = () => {
       lng: location.coords.longitude
     }
 
+    let address = await Location.reverseGeocodeAsync({latitude: current.lat, longitude: current.lng});
+    const description = `${address[0].street}, ${address[0].streetNumber}`
+
     dispatch(setOrigin({
+      description,
       location: current,
     }))
   }
@@ -64,6 +69,20 @@ const MainStack = () => {
                 <Stack.Screen
                   name='Home'
                   component={Home}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Driver'
+                  component={Driver}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='DriverMap'
+                  component={DriverMap}
                   options={{
                     headerShown: false,
                   }}
