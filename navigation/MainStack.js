@@ -12,6 +12,7 @@ import Login from '../views/Login';
 import Register from '../views/Register';
 import Driver from '../views/Driver';
 import DriverMap from '../views/DriverMap';
+import RecoverPassword from '../views/RecoverPassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -92,6 +93,13 @@ const MainStack = () => {
                   component={Map}
                   options={{
                     headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='recover-password'
+                  component={RecoverPassword}
+                  options={{
+                    title: "Recuperar Contraseña"
                   }}
                 />
             </Stack.Navigator>
