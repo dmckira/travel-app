@@ -5,12 +5,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { toggleAnimation } from '../animations/toggleAnimation';
 import { firebase } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, setUser, setMovement } from '../slices/navSlice';
+import { selectUser, setUser, setMovement, selectMovement } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const DescriptionItem = ({title, origin, destination, userId}) => {
+const DescriptionItem = ({id, title, origin, destination, userId}) => {
   const [showContent, setShowContent] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
+  const movements = useSelector(selectMovement);
   const navigation = useNavigation(); 
   const auth = firebase.auth;
   const dispatch = useDispatch();
@@ -62,6 +63,24 @@ const DescriptionItem = ({title, origin, destination, userId}) => {
       });
   }
 
+  const hiddenRequest = (idTmp) => {
+    const movementspop = [];
+    let movementsTmp = movements.movements;
+    movementsTmp.map((move) => {
+      const {id, state, destination, origin, user} = move;
+      movementspop.push({
+        id,
+        state: id === idTmp ? 'Hide' : state,
+        destination,
+        origin,
+        user,
+      });
+    })
+    dispatch(setMovement({
+      movements: movementspop,
+    }))
+  }
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => toggleListItem()}>
@@ -77,12 +96,20 @@ const DescriptionItem = ({title, origin, destination, userId}) => {
         <View style={styles.body}>
           <Text style={styles.bodyText}>Desde: {origin}</Text>
           <Text style={styles.bodyText}>Hasta: {destination}</Text>
-          <Pressable
-            style={ styles.button }
-            onPress={handleTakenMovement}
-          >
-            <Text style={ styles.textButton }>Aceptar</Text>
-          </Pressable>
+          <View style={ styles.bodyButton }>
+            <Pressable
+              style={ styles.button }
+              onPress={handleTakenMovement}
+            >
+              <Text style={ styles.textButton }>Aceptar</Text>
+            </Pressable>
+            <Pressable
+              style={ styles.button }
+              onPress={() => hiddenRequest(id)}
+            >
+              <Text style={ styles.textButton }>Ocultar</Text>
+            </Pressable>
+          </View>
         </View> )
         : null }
     </View>
@@ -117,13 +144,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
+  bodyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   button: {
-    margin: 10,
+    marginTop: 10,
     backgroundColor: '#ff4e40',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 40,
     borderRadius: 50,
     elevation: 3,
   },

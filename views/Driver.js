@@ -5,14 +5,18 @@ import { ListItem, Avatar } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import DescriptionItem from '../components/DescriptionItem';
 import { useNavigation } from '@react-navigation/native';
+import { selectMovement, setMovement } from '../slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const background = require('../assets/images/imglogin.jpg');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 const userImage = require('../assets/images/user.png');
 
 const Driver = () => {
-  const [movements, setMovements] = useState([])
-  const navigation = useNavigation(); 
+  //const [movements, setMovements] = useState([])
+  const movement = useSelector(selectMovement);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
@@ -27,7 +31,9 @@ const Driver = () => {
           user,
         });
       });
-      setMovements(movements);
+      dispatch(setMovement({
+        movements,
+      }))
     })
   }, []);
 
@@ -45,11 +51,12 @@ const Driver = () => {
       <View style={styles.border}/>
       <View style={styles.container}>
         <FlatList
-          data={movements}
+          data={movement.movements}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({item}) => (
             item.state === 'Pending' ? (
             <DescriptionItem
+              id={item.id.toString()}
               title={item.user.name}
               origin={item.origin.description}
               destination={item.destination.description}
