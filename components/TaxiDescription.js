@@ -1,45 +1,50 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Pressable } from 'react-native'
-import { useSelector } from 'react-redux'
-import { selectTravelTimeInformation } from '../slices/navSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectTravelTimeInformation, setDestination } from '../slices/navSlice'
 import { firebase } from '../firebase-config';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 
-const TaxiDescription = () => {
-  const [movement, setMovement] = useState([])
+const TaxiDescription = ({navigation}) => {
+  const dispatch = useDispatch();
+  const [movement, setMovement] = useState([]);
+  const time = useSelector(selectTravelTimeInformation);
 
   useEffect(() => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
       querySnapshot.docs.forEach(doc => {
         if (doc.id === firebase.auth().currentUser.uid) {
           setMovement(doc.data());
+          if (doc.data().state === 'Done') {
+            dispatch(
+              setDestination(null)
+            );
+            navigation.navigate('Home');
+          }
         }
       });
     })
   }, []);
 
-  console.log('movement: ', movement);
-
-  const travelTimeInformation = useSelector(selectTravelTimeInformation);
-
   return (
     <SafeAreaView style={styles.containerHeader}>
       <Text style={styles.textContent}>T R A V E L A P P</Text>
       <View style={styles.border}/>
-    {/* <SafeAreaView>
-      <Text>Distancia - {travelTimeInformation?.distance?.text}</Text>
-      <Text>Tiempo - {travelTimeInformation?.duration?.text}</Text>
-    </SafeAreaView> */}
       {movement.driver ? (
         <View style={styles.containerBody}>
           <View style={styles.titleContainer}>
             <Icon color='#0F6769' name='local-taxi' size={40} style={{marginRight: 10}} />
-              <Text style={styles.title}>{movement.driver.name} - </Text>
-              
+              <Text style={styles.title}>{movement.driver.name} - {movement.driver.placa}</Text>
           </View>
           <View style={styles.body}>
             <Text style={styles.bodyText}>Desde: {movement.origin.description}</Text>
             <Text style={styles.bodyText}>Hasta: {movement.destination.description}</Text>
+            {time ? (
+              <View style={styles.bodyTimer}>
+                <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 5}} />
+                <Text style={ styles.bodyText }>{time.time} Minutos de distancia</Text>
+              </View>
+            ) : null}
           </View>
           
         </View>
@@ -48,9 +53,11 @@ const TaxiDescription = () => {
         <View
           style={ styles.button } 
         >
-          <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 10}} />
-          <Text style={ styles.text }>Tiempo estimado: </Text>
-          <Text style={ styles.text }>5 Mins</Text>
+          {movement.state === 'Arrive' ? (
+            <Text style={ styles.text }>¡Tu taxi te esta esperando!</Text>
+          ) : (
+            <Text style={ styles.text }>¡Tu taxi va en camino!</Text>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -108,6 +115,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#b5b2b8',
     fontWeight: 'bold',
+  },
+  bodyTimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   border: {
     borderTopWidth: 1,

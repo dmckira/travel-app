@@ -2,8 +2,8 @@ import React from 'react'
 import { ScrollView, View, Text, Button, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectOrigin, setUser } from '../slices/navSlice';
 
 const background = require('../assets/images/imglogin.jpg');
 const imageLogin = require('../assets/images/carro.png');
@@ -13,6 +13,7 @@ function Login({navigation}) {
   const dispatch = useDispatch();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const origin = useSelector(selectOrigin);
   const auth = firebase.auth;
 
   handleSignIn = async (email, password) => {
@@ -25,13 +26,24 @@ function Login({navigation}) {
           }))
           if (user.data().role === 'Usuario') {
             navigation.navigate('Home');
-          } else {
+          } else if(user.data().role === 'Conductor') {
             navigation.navigate('Driver');
+          } else {
+            setBusJornada();
+            navigation.navigate('Bus');
           }
         })
     } catch (error) {
       Alert.alert(error.message);
     }
+  }
+
+  setBusJornada = async () => {
+    await firebase.firestore().collection('users').doc(auth().currentUser.uid)
+      .update({
+        origin,
+        inRuta: true,
+      });
   }
 
   return (

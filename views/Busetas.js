@@ -3,37 +3,41 @@ import React, { useEffect, useState } from 'react'
 import { firebase } from '../firebase-config';
 import { ListItem, Avatar } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
-import DescriptionItem from '../components/DescriptionItem';
+import BusetasItem from '../components/BusetasItem';
 import { useNavigation } from '@react-navigation/native';
 
 const background = require('../assets/images/imglogin.jpg');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 const userImage = require('../assets/images/user.png');
 
-const Driver = () => {
-  const [movements, setMovements] = useState([])
+const Busetas = () => {
+  const [buses, setBuses] = useState([])
   const navigation = useNavigation(); 
 
   useEffect(() => {
-    firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
-      const movements = [];
+    firebase.firestore().collection('users').onSnapshot(querySnapshot => {
+      const buses = [];
       querySnapshot.docs.forEach(doc => {
-        const {state, destination, origin, user} = doc.data();
-        movements.push({
-          id: doc.id,
-          state,
-          destination,
-          origin,
-          user,
-        });
+        if (doc.data().role.toLowerCase() === 'bus' && doc.data().inRuta) {
+          const {name, placa, email, role, origin} = doc.data();
+          buses.push({
+            id: doc.id,
+            name,
+            placa,
+            email,
+            role,
+            origin,
+          });
+        }
       });
-      setMovements(movements);
+      setBuses(buses);
     })
   }, []);
 
+  console.log('buses: ', buses);
+
   const endDay = async () => {
-    await firebase.auth().signOut();
-    navigation.navigate('Login')
+    navigation.navigate('Home')
   }
 
   return (
@@ -41,21 +45,19 @@ const Driver = () => {
       <View style={styles.containerImage}>
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>
-      <Text style={styles.textContent}>S O L I C I T U D E S</Text>
+      <Text style={styles.textContent}>B U S E T A S</Text>
       <View style={styles.border}/>
       <View style={styles.container}>
         <FlatList
-          data={movements}
+          data={buses}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({item}) => (
-            item.state === 'Pending' ? (
-            <DescriptionItem
-              title={item.user.name}
+            <BusetasItem
+              title={item.name}
               origin={item.origin.description}
-              destination={item.destination.description}
+              placa={item.placa}
               userId={item.id}
             />
-            ) : null
           )}
         />
       </View>
@@ -64,7 +66,7 @@ const Driver = () => {
           style={ styles.button }
           onPress={endDay}
         >
-          <Text style={ styles.text }>Finalizar jornada</Text>
+          <Text style={ styles.text }>Volver</Text>
         </Pressable>
       </View>
     </ImageBackground>
@@ -133,4 +135,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Driver
+export default Busetas

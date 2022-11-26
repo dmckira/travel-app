@@ -12,6 +12,8 @@ import Login from '../views/Login';
 import Register from '../views/Register';
 import Driver from '../views/Driver';
 import DriverMap from '../views/DriverMap';
+import Bus from '../views/Bus';
+import Busetas from '../views/Busetas';
 
 const Stack = createNativeStackNavigator();
 
@@ -83,6 +85,20 @@ const MainStack = () => {
                 <Stack.Screen
                   name='DriverMap'
                   component={DriverMap}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Bus'
+                  component={Bus}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Busetas'
+                  component={Busetas}
                   options={{
                     headerShown: false,
                   }}

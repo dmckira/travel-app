@@ -45,7 +45,7 @@ const WaitingTaxi = ({navigation}) => {
         style={ styles.button }
         onPress={handleDeleteMovement}
       >
-        <Text style={ styles.textButton }>Editar destino</Text>
+        <Text style={ styles.textButton }>Editar o Cancelar pedido</Text>
       </Pressable>
     </SafeAreaView>
   )

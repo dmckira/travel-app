@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUser, setUser, setMovement } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const DescriptionItem = ({title, origin, destination, userId}) => {
+const BusetasItem = ({title, origin, placa, userId}) => {
   const [showContent, setShowContent] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation(); 
@@ -32,33 +32,14 @@ const DescriptionItem = ({title, origin, destination, userId}) => {
   });
 
   const handleTakenMovement = async () => {
-    await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
-      .then(user => {
-        dispatch(setUser({
-          user: user.data(),
-        }))
-      })
-
-    await firebase.firestore().collection('movements').doc(userId)
-      .update({
-        state: 'Taken',
-        driver: {
-          id: auth().currentUser.uid,
-          name: user.user.name,
-          email: user.user.email,
-          role: user.user.role,
-          placa: user.user.placa
-        }
-      });
-
-    await firebase.firestore().collection('movements')
+    await firebase.firestore().collection('users')
       .doc(userId)
       .get()
       .then(movement => {
         dispatch(setMovement({
           movement: movement.data(),
         }))
-        navigation.navigate('DriverMap');
+        navigation.navigate('BusetasMap');
       });
   }
 
@@ -66,8 +47,8 @@ const DescriptionItem = ({title, origin, destination, userId}) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={() => toggleListItem()}>
         <View style={styles.titleContainer}>
-          <Icon color='#ff4e40' name='account-circle' size={40} style={{marginRight: 10}} />
-          <Text style={styles.title}>{title}</Text>
+          <Icon color='#ff4e40' name='directions-bus' size={40} style={{marginRight: 10}} />
+          <Text style={styles.title}>{title} - {placa}</Text>
             <Animated.View style={{transform: [{rotateZ: arrowTransform}], marginLeft: 'auto'}}>
               <MaterialIcons name={'keyboard-arrow-right'} size={30} color='white' />
             </Animated.View>
@@ -76,12 +57,12 @@ const DescriptionItem = ({title, origin, destination, userId}) => {
        {showContent ? (
         <View style={styles.body}>
           <Text style={styles.bodyText}>Desde: {origin}</Text>
-          <Text style={styles.bodyText}>Hasta: {destination}</Text>
+          {/* <Text style={styles.bodyText}>Hasta: {placa}</Text> */}
           <Pressable
             style={ styles.button }
             onPress={handleTakenMovement}
           >
-            <Text style={ styles.textButton }>Aceptar</Text>
+            <Text style={ styles.textButton }>Ver en mapa</Text>
           </Pressable>
         </View> )
         : null }
@@ -136,4 +117,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default DescriptionItem
+export default BusetasItem
