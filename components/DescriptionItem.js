@@ -5,13 +5,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { toggleAnimation } from '../animations/toggleAnimation';
 import { firebase } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, setUser, setMovement, selectMovement } from '../slices/navSlice';
+import { selectUser, setUser, setMovements, selectMovements } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const DescriptionItem = ({id, title, origin, destination, userId}) => {
+const DescriptionItem = ({ id, title, origin, destination, userId, hide }) => {
   const [showContent, setShowContent] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
-  const movements = useSelector(selectMovement);
+  const movements = useSelector(selectMovements);
   const navigation = useNavigation(); 
   const auth = firebase.auth;
   const dispatch = useDispatch();
@@ -63,22 +63,24 @@ const DescriptionItem = ({id, title, origin, destination, userId}) => {
       });
   }
 
-  const hiddenRequest = (idTmp) => {
-    const movementspop = [];
-    let movementsTmp = movements.movements;
-    movementsTmp.map((move) => {
-      const {id, state, destination, origin, user} = move;
-      movementspop.push({
-        id,
-        state: id === idTmp ? 'Hide' : state,
-        destination,
-        origin,
-        user,
+  const hiddenRequest = async () => {
+    let drivers = [];
+    if (hide) {
+      hide.forEach(element => {
+        const driver = element;
+        drivers.push(
+          driver
+        )
       });
-    })
-    dispatch(setMovement({
-      movements: movementspop,
-    }))
+      drivers.push(auth().currentUser.uid);
+    } else {
+      drivers.push(auth().currentUser.uid);
+    }
+
+    await firebase.firestore().collection('movements').doc(userId)
+      .update({
+        hide: drivers,
+      });
   }
 
   return (

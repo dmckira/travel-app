@@ -16,6 +16,7 @@ const userImage = require('../assets/images/user.png');
 const DriverMap = ({navigation}) => {
   const dispatch = useDispatch();
   const movement = useSelector(selectMovement);
+  console.log('Movimiento: ', movement);
   const time = useSelector(selectTravelTimeInformation);
   const originDriver = useSelector(selectOrigin);
   const origin = movement.movement.origin;

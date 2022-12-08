@@ -83,6 +83,12 @@ function Login({navigation}) {
             leftIcon={{ type: 'font-awesome', name: 'lock', size: 30, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
+        <Text
+          style={styles.recovery}
+          onPress={()=> navigation.navigate("recover-password")}
+        >
+          ¿Olvidaste tu contraseña?
+        </Text>
         <View style={ styles.containerButton }>
           <TouchableOpacity
             onPress={() => handleSignIn(email, password)}
@@ -145,6 +151,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: 'white',
+  },
+  recovery: {
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+    fontSize: 16,
   },
   register: {
     color: '#ffff',
