@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerButton: {
-    padding: 2,
+    padding: 3,
     marginTop: 'auto',
     flexShrink: 1,
   },
@@ -221,6 +221,7 @@ const styles = StyleSheet.create({
   register: {
     color: '#ffff',
     textAlign: 'center',
+    fontWeight: 'bold',
     fontSize: 16,
     marginTop: '0%',
     marginBottom: 10,

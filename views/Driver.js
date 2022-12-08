@@ -5,16 +5,15 @@ import { ListItem, Avatar } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import DescriptionItem from '../components/DescriptionItem';
 import { useNavigation } from '@react-navigation/native';
-import { selectMovement, setMovement } from '../slices/navSlice';
+import { selectMovements, setMovements } from '../slices/navSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const background = require('../assets/images/imglogin.jpg');
 const travelLogo = require('../assets/images/logotipo-travel.png');
-const userImage = require('../assets/images/user.png');
 
 const Driver = () => {
-  //const [movements, setMovements] = useState([])
-  const movement = useSelector(selectMovement);
+  const auth = firebase.auth;
+  const movements = useSelector(selectMovements);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -22,16 +21,17 @@ const Driver = () => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
       const movements = [];
       querySnapshot.docs.forEach(doc => {
-        const {state, destination, origin, user} = doc.data();
+        const {state, destination, origin, user, hide} = doc.data();
         movements.push({
           id: doc.id,
           state,
           destination,
           origin,
           user,
+          hide,
         });
       });
-      dispatch(setMovement({
+      dispatch(setMovements({
         movements,
       }))
     })
@@ -50,21 +50,37 @@ const Driver = () => {
       <Text style={styles.textContent}>S O L I C I T U D E S</Text>
       <View style={styles.border}/>
       <View style={styles.container}>
-        <FlatList
-          data={movement.movements}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => (
-            item.state === 'Pending' ? (
-            <DescriptionItem
-              id={item.id.toString()}
-              title={item.user.name}
-              origin={item.origin.description}
-              destination={item.destination.description}
-              userId={item.id}
-            />
-            ) : null
-          )}
-        />
+        {movements ? (
+          <FlatList
+            data={movements.movements}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => (
+              item.state === 'Pending' ? (
+                item.hide ? (
+                  !item.hide.includes(auth().currentUser.uid) ? (
+                    <DescriptionItem
+                    id={item.id.toString()}
+                    title={item.user.name}
+                    origin={item.origin.description}
+                    destination={item.destination.description}
+                    userId={item.id}
+                    hide={item.hide}
+                  />
+                  ) : null
+                ) : (
+                  <DescriptionItem
+                    id={item.id.toString()}
+                    title={item.user.name}
+                    origin={item.origin.description}
+                    destination={item.destination.description}
+                    userId={item.id}
+                    hide={item.hide}
+                  />
+                )
+              ) : null
+            )}
+          />
+        ) : null}
       </View>
       <View style={ styles.containerButton }>
         <Pressable
