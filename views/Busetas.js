@@ -34,8 +34,6 @@ const Busetas = () => {
     })
   }, []);
 
-  console.log('buses: ', buses);
-
   const endDay = async () => {
     navigation.navigate('Home')
   }

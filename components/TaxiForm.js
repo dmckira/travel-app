@@ -32,7 +32,22 @@ const TaxiForm = ({navigation}) => {
         destination,
         state: 'Pending',
       })
+
     navigation.navigate('WaitingTaxi')
+
+    setTimeout( async () => {
+      await firebase.firestore().collection('movements')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(docSnapshot => {
+        if (docSnapshot.exists) {
+          firebase.firestore().collection('movements').doc(firebase.auth().currentUser.uid)
+            .update({
+              important: true,
+            });
+        }
+      })
+    }, 10000)
   }
 
   return (
