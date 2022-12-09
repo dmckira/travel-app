@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUser, setUser, setMovements, selectMovements } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
-const DescriptionItem = ({ id, title, origin, destination, userId, hide }) => {
+const DescriptionItem = ({ id, title, origin, destination, userId, hide, important }) => {
   const [showContent, setShowContent] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
   const movements = useSelector(selectMovements);
@@ -82,13 +82,15 @@ const DescriptionItem = ({ id, title, origin, destination, userId, hide }) => {
         hide: drivers,
       });
   }
-
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,/*  important ? styles.important : null */]}>
       <TouchableOpacity onPress={() => toggleListItem()}>
         <View style={styles.titleContainer}>
           <Icon color='#ff4e40' name='account-circle' size={40} style={{marginRight: 10}} />
           <Text style={styles.title}>{title}</Text>
+          {important ? (
+            <Icon color='#FFD100' name='warning' size={40} style={{marginRight: 10}} />
+          ) : null}
             <Animated.View style={{transform: [{rotateZ: arrowTransform}], marginLeft: 'auto'}}>
               <MaterialIcons name={'keyboard-arrow-right'} size={30} color='white' />
             </Animated.View>
@@ -168,6 +170,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
     color: '#b5b2b8',
   },
+  /* important: {
+    borderWidth: 1,
+    borderColor: '#FF6800',
+  } */
 })
 
 export default DescriptionItem

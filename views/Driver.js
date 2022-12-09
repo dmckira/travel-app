@@ -20,17 +20,31 @@ const Driver = () => {
   useEffect(() => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
       const movements = [];
+      const movementsTmp = [];
+      const movementsTmpNo = [];
       querySnapshot.docs.forEach(doc => {
-        const {state, destination, origin, user, hide} = doc.data();
-        movements.push({
+        const {state, destination, origin, user, hide, important} = doc.data();
+        movementsTmp.push({
           id: doc.id,
           state,
           destination,
           origin,
           user,
           hide,
+          important,
         });
       });
+
+      movementsTmp.filter(item => {
+        if (item.important) {
+          movements.push(item);
+        } else {
+          movementsTmpNo.push(item);
+        }
+      })
+
+      movements.push(movementsTmpNo[0]);
+      
       dispatch(setMovements({
         movements,
       }))
@@ -65,6 +79,7 @@ const Driver = () => {
                     destination={item.destination.description}
                     userId={item.id}
                     hide={item.hide}
+                    important={item.important}
                   />
                   ) : null
                 ) : (
@@ -75,6 +90,7 @@ const Driver = () => {
                     destination={item.destination.description}
                     userId={item.id}
                     hide={item.hide}
+                    important={item.important}
                   />
                 )
               ) : null
