@@ -10,6 +10,7 @@ import Map from '../views/Map';
 import Home from '../views/Home';
 import Login from '../views/Login';
 import Register from '../views/Register';
+import Support from '../views/Support';
 import Driver from '../views/Driver';
 import DriverMap from '../views/DriverMap';
 
@@ -69,6 +70,13 @@ const MainStack = () => {
                 <Stack.Screen
                   name='Home'
                   component={Home}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Support'
+                  component={Support}
                   options={{
                     headerShown: false,
                   }}

@@ -52,7 +52,11 @@ function Home ({navigation}) {
                 Busetas
               </Text>
             </TouchableOpacity >
-            <TouchableOpacity style={ styles.item }>
+            <TouchableOpacity 
+              style={ styles.item }
+              onPress={() =>
+                navigation.navigate('Support')
+                }>
               <Icon name="gear" size={60} color="#929292" />
               <Text style={styles.bienvenidotxt}>
                 Soporte
