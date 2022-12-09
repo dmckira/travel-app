@@ -1,8 +1,10 @@
 import { View, Text, ImageBackground, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome';
+/* import Icon from 'react-native-vector-icons/FontAwesome'; */
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../slices/navSlice';
+import { Icon } from 'react-native-elements/dist/icons/Icon';
+import { firebase } from '../firebase-config';
 
 const background = require('../assets/images/imglogin.jpg');
 const travelImage = require('../assets/images/fondoverdetravel.png');
@@ -13,6 +15,11 @@ const Row = ({ children }) => (
 
 function Home ({navigation}) {
   const user = useSelector(selectUser);
+
+  const logout = async () => {
+    await firebase.auth().signOut();
+    navigation.navigate('Login')
+  }
 
   return (
     <ImageBackground source={background} style={styles.backgroundImage}>
@@ -31,7 +38,7 @@ function Home ({navigation}) {
               onPress={() =>
               navigation.navigate('Login')
               }>
-              <Icon name="user" size={60} color="#929292" />
+              <Icon name="person" size={60} color="#ff4e40" />
               <Text style={styles.bienvenidotxt}>
                 Perfil
               </Text>
@@ -41,13 +48,18 @@ function Home ({navigation}) {
               onPress={() =>
               navigation.navigate('Map')
               }>
-              <Icon name="taxi" size={60} color="#929292" />
+              <Icon name="local-taxi" size={60} color="#1D8385" />
               <Text style={styles.bienvenidotxt}>
                 Taxi
               </Text>
             </TouchableOpacity >
-            <TouchableOpacity style={ styles.item }>
-              <Icon name="bus" size={60} color="#929292" />
+            <TouchableOpacity 
+              style={ styles.item }
+              onPress={() =>
+                navigation.navigate('Busetas')
+              }
+              >
+              <Icon name="directions-bus" size={60} color="#1D8385" />
               <Text style={styles.bienvenidotxt}>
                 Busetas
               </Text>
@@ -64,6 +76,19 @@ function Home ({navigation}) {
             </TouchableOpacity >
           </View>
         </Row>
+        <View style={ styles.containerSignOut }>
+          <TouchableOpacity
+            style={ styles.item }
+            onPress={
+              logout
+            }
+          >
+            <Icon name="logout" size={40} color="#929292" />
+            <Text style={styles.bienvenidotxt}>
+              Salir
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -131,9 +156,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'flex-start' // if you want to fill rows left to right
   },
+  containerSignOut: {
+    marginTop: 'auto',
+    flexShrink: 1,
+    alignItems: 'center',
+    marginBottom: '10%',
+  },
   item: {
     alignItems: 'center',
-    marginTop: '5%',
     width: '50%' // is 50% of container width
   }
 });

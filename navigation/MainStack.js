@@ -13,6 +13,9 @@ import Register from '../views/Register';
 import Support from '../views/Support';
 import Driver from '../views/Driver';
 import DriverMap from '../views/DriverMap';
+import Bus from '../views/Bus';
+import Busetas from '../views/Busetas';
+import RecoverPassword from '../views/RecoverPassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -96,8 +99,29 @@ const MainStack = () => {
                   }}
                 />
                 <Stack.Screen
+                  name='Bus'
+                  component={Bus}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Busetas'
+                  component={Busetas}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
                   name='Map'
                   component={Map}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='recover-password'
+                  component={RecoverPassword}
                   options={{
                     headerShown: false,
                   }}

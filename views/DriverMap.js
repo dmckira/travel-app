@@ -20,8 +20,24 @@ const DriverMap = ({navigation}) => {
   const originDriver = useSelector(selectOrigin);
   const origin = movement.movement.origin;
   const destination = movement.movement.destination;
-  console.log('tiempo user: ', time)
+  const [arrive, setMovement] = useState(false)
   const mapRef = useRef(null);
+  
+  const driverArrive = async () => {
+    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
+    .update({
+      state: 'Arrive',
+    });
+    setMovement(true);
+  }
+
+  const requestEnd = async () => {
+    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
+    .update({
+      state: 'Done',
+    });
+    navigation.navigate('Driver')
+  }
 
   return (
     <View style={styles.container}>
@@ -80,14 +96,14 @@ const DriverMap = ({navigation}) => {
                 strokeColor = "orange"
                 strokeWidth={3}
                 onReady={result => {
-                  /* mapRef.current.fitToCoordinates(result.coordinates, {
+                  mapRef.current.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       top: 50, right: 50, bottom: 50, left: 50
                     }
-                  }) */
-                  dispatch(setTravelTimeInformation({
+                  })
+                  /* dispatch(setTravelTimeInformation({
                     time: result.duration.toFixed(0),
-                  }))
+                  })) */
                 }}
               />
               <MapViewDirections
@@ -103,11 +119,11 @@ const DriverMap = ({navigation}) => {
                 strokeColor = "orange"
                 strokeWidth={3}
                 onReady={result => {
-                  mapRef.current.fitToCoordinates(result.coordinates, {
+                  /* mapRef.current.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       top: 50, right: 50, bottom: 50, left: 50
                     }
-                  })
+                  }) */
                   dispatch(setTravelTimeInformation({
                     time: result.duration.toFixed(0),
                   }))
@@ -121,29 +137,34 @@ const DriverMap = ({navigation}) => {
         <SafeAreaView style={styles.containerHeader}>
           <Text style={styles.textContent}>T R A V E L A P P</Text>
           <View style={styles.border}/>
-          {/* {movement.movement.driver ? (
+          {movement.movement.driver ? (
             <View style={styles.containerBody}>
               <View style={styles.titleContainer}>
-                <Icon color='#0F6769' name='local-taxi' size={40} style={{marginRight: 10}} />
-                  <Text style={styles.title}>{movement.movement.driver.name} - </Text>
+                <Icon color='#0F6769' name='account-circle' size={40} style={{marginRight: 10}} />
+                  <Text style={styles.title}>{movement.movement.user.name} - {movement.movement.user.cel}</Text>
                   
               </View>
               <View style={styles.body}>
                 <Text style={styles.bodyText}>Desde: {movement.movement.origin.description}</Text>
                 <Text style={styles.bodyText}>Hasta: {movement.movement.destination.description}</Text>
+                {!arrive && time ? (
+                  <View style={styles.bodyTimer}>
+                    <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 5}} />
+                    <Text style={ styles.bodyText }>{time.time} Minutos de distancia</Text>
+                  </View>
+                ) : null}
               </View>
               
             </View>
           ) : null}
           <View style={ styles.containerButton }>
-            <View
-              style={ styles.button } 
+            <Pressable
+              style={ styles.button }
+              onPress={!arrive ? driverArrive : requestEnd}
             >
-              <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 10}} />
-              <Text style={ styles.text }>Tiempo estimado: </Text>
-              <Text style={ styles.text }>5 Mins</Text>
-            </View>
-          </View> */}
+              <Text style={ styles.text }>{!arrive ? '¡Ya llegue!' : 'Recorrido finalizado'}</Text>
+            </Pressable>
+          </View>
         </SafeAreaView>
       </View>
     </View>
@@ -181,6 +202,9 @@ const styles = StyleSheet.create({
     marginBottom: '2%',
     overflow: 'hidden',
     margin: '5%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   containerButton: {
     padding: 2,
@@ -283,6 +307,11 @@ const styles = StyleSheet.create({
     color: '#b5b2b8',
     fontWeight: 'bold',
   },
+  bodyTimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   border: {
     borderTopWidth: 1,
     borderColor: '#297273',
@@ -303,6 +332,13 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: '#b5b2b8',
+  },
+  textTime: {
+    fontSize: 13,
     lineHeight: 21,
     fontWeight: 'bold',
     letterSpacing: 0.25,

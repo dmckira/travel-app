@@ -2,8 +2,8 @@ import React from 'react'
 import { ScrollView, View, Text, Button, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectOrigin, setUser } from '../slices/navSlice';
 
 const background = require('../assets/images/imglogin.jpg');
 const imageLogin = require('../assets/images/carro.png');
@@ -13,6 +13,7 @@ function Login({navigation}) {
   const dispatch = useDispatch();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const origin = useSelector(selectOrigin);
   const auth = firebase.auth;
 
   handleSignIn = async (email, password) => {
@@ -25,13 +26,24 @@ function Login({navigation}) {
           }))
           if (user.data().role === 'Usuario') {
             navigation.navigate('Home');
-          } else {
+          } else if(user.data().role === 'Conductor') {
             navigation.navigate('Driver');
+          } else {
+            setBusJornada();
+            navigation.navigate('Bus');
           }
         })
     } catch (error) {
       Alert.alert(error.message);
     }
+  }
+
+  setBusJornada = async () => {
+    await firebase.firestore().collection('users').doc(auth().currentUser.uid)
+      .update({
+        origin,
+        inRuta: true,
+      });
   }
 
   return (
@@ -71,6 +83,12 @@ function Login({navigation}) {
             leftIcon={{ type: 'font-awesome', name: 'lock', size: 30, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
+        <Text
+          style={styles.recovery}
+          onPress={()=> navigation.navigate("recover-password")}
+        >
+          ¿Olvidaste tu contraseña?
+        </Text>
         <View style={ styles.containerButton }>
           <TouchableOpacity
             onPress={() => handleSignIn(email, password)}
@@ -84,73 +102,79 @@ function Login({navigation}) {
   );
 }
 
-  const styles = StyleSheet.create({
-    containerImage: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    containerButton: {
-      padding: 2,
-      marginTop: 'auto',
-      flexShrink: 1,
-    },
-    container: {
-      width: '100%',
-      borderBottomColor: '#1D8385',
-      marginVertical: 5,
-      paddingLeft: 20,
-      paddingRight: 20,
-    },
-    backgroundImage: {
-      width: '100%',
-      height: '100%',
-    },
-    image: {
-      height: '20%',
-      width: '100%',
-    },
-    imageLogo: {
-      height: 90,
-      width: 265,
-      border: 0,
-      marginTop: '10%',
-      marginBottom: '10%',
-    },
-    button: {
-      margin: 10,
-      backgroundColor: '#1D8385',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 32,
-      borderRadius: 15,
-      elevation: 3,
-    },
-    text: {
-      fontSize: 16,
-      lineHeight: 21,
-      fontWeight: 'bold',
-      letterSpacing: 0.25,
-      color: 'white',
-    },
-    register: {
-      color: '#ffff',
-      textAlign: 'center',
-      fontWeight: 'bold',
-      fontSize: 16,
-      marginTop: '0%',
-      marginBottom: 10,
-      alignContent: 'center',
-      height: 40,
-      width: '83%',
-      backgroundColor: '#ff5042',
-      borderRadius: 10,
-      borderTopLeftRadius: 0,
-      borderTopRightRadius: 0,
-      /* Para que no se rompa en dos líneas, y lo translade tal cual. */
-      marginLeft: 30,
-    },
+const styles = StyleSheet.create({
+  containerImage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  containerButton: {
+    padding: 2,
+    marginTop: 'auto',
+    flexShrink: 1,
+  },
+  container: {
+    width: '100%',
+    borderBottomColor: '#1D8385',
+    marginVertical: 5,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+  },
+  image: {
+    height: '20%',
+    width: '100%',
+  },
+  imageLogo: {
+    height: 90,
+    width: 265,
+    border: 0,
+    marginTop: '10%',
+    marginBottom: '10%',
+  },
+  button: {
+    margin: 10,
+    backgroundColor: '#1D8385',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 15,
+    elevation: 3,
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
+  recovery: {
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+    fontSize: 16,
+  },
+  register: {
+    color: '#ffff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: '0%',
+    marginBottom: 10,
+    alignContent: 'center',
+    height: 40,
+    width: '83%',
+    backgroundColor: '#ff5042',
+    borderRadius: 10,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    /* Para que no se rompa en dos líneas, y lo translade tal cual. */
+    marginLeft: 30,
+  },
 });
 
 export default Login

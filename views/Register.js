@@ -10,42 +10,59 @@ const travelLogo = require('../assets/images/logotipo-travel.png');
 const Register = ({navigation}) => {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [cel, setCel] = React.useState('');
   const [role, setRole] = React.useState('');
+  const [placa, setPlaca] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   const handleCreateAccount = async () => {
-    if (email === '' || password === '') {
+    if (name === '' || email === '' || cel === '' || password === '' || role === '') {
       alert('Necesita completar todos los campos');
     } else {
-      await firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        firebase.auth().currentUser.sendEmailVerification({
-          handleCodeInApp: true,
-          url: 'https://travel-app-bd-47b61.firebaseapp.com',
-        })
-        .then(() => {
-          alert('Verificación de Email enviada!');
-        }).catch((error) => {
-          alert(error.message);
-        })
-        .then(() => {
-          firebase.firestore().collection('users')
-          .doc(firebase.auth().currentUser.uid)
-          .set({
-            name,
-            email,
-            role,
+      if (role.toLowerCase() === 'usuario' || role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') {
+        if (role.toLowerCase() === 'usuario' || ((role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') && placa !== '') ) {
+          await firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            firebase.auth().currentUser.sendEmailVerification({
+              handleCodeInApp: true,
+              url: 'https://travel-app-bd-47b61.firebaseapp.com',
+            })
+            .then(() => {
+              alert('Verificación de Email enviada!');
+            }).catch((error) => {
+              alert(error.message);
+            })
+            .then(() => {
+              firebase.firestore().collection('users')
+              .doc(firebase.auth().currentUser.uid)
+              .set(role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus' ? {
+                name,
+                email,
+                cel,
+                role,
+                placa,
+              } : {
+                name,
+                email,
+                cel,
+                role,
+              })
+            })
+            .catch((error) => {
+              alert(error.message);
+            })
           })
-        })
-        .catch((error) => {
-          alert(error.message);
-        })
-      })
-      .catch((error) => {
-        alert(error.message);
-      })
-      alert('Guardado!');
-      navigation.navigate('Login');
+          .catch((error) => {
+            alert(error.message);
+          })
+          alert('Guardado!');
+          navigation.navigate('Login');
+        } else {
+          alert('Debe ingresar la placa de su vehículo');
+        }
+      } else {
+        alert('El rol debe ser *Usuario*, *Conductor* o *Bus*');
+      }
     }
   }
 
@@ -83,12 +100,27 @@ const Register = ({navigation}) => {
             inputContainerStyle={{ borderColor: '#1D8385' }}
             containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
             leftIcon={{ type: 'font-awesome', name: 'envelope', size: 18, color: '#1D8385', marginLeft: 5 }}
+            keyboardType="email-address"
+          />
+        </View>
+        <View>
+          <Input
+            onChangeText={(text) => setCel(text.replace(/[^0-9]/g, ''))}
+            placeholder='Celular'
+            autoCapitalize='none'
+            autoCorrect={false}
+            inputStyle={{ marginLeft: 15 }}
+            inputContainerStyle={{ borderColor: '#1D8385' }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+            leftIcon={{ type: 'font-awesome', name: 'mobile', size: 32, color: '#1D8385', marginLeft: 8 }}
+            keyboardType='numeric'
+            maxLength={10}
           />
         </View>
         <View>
           <Input
             onChangeText={(text) => setRole(text)}
-            placeholder='Usuario o Conductor?'
+            placeholder='Usuario, Conductor o bus?'
             autoCapitalize='none'
             autoCorrect={false}
             inputStyle={{ marginLeft: 15 }}
@@ -97,6 +129,20 @@ const Register = ({navigation}) => {
             leftIcon={{ type: 'font-awesome', name: 'users', size: 18, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
+        {role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus' ? (
+          <View>
+            <Input
+              onChangeText={(text) => setPlaca(text)}
+              placeholder='Placa del vehículo'
+              autoCapitalize='none'
+              autoCorrect={false}
+              inputStyle={{ marginLeft: 15 }}
+              inputContainerStyle={{ borderColor: '#1D8385' }}
+              containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+              leftIcon={{ type: 'font-awesome', name: 'taxi', size: 18, color: '#1D8385', marginLeft: 5 }}
+            />
+          </View>
+        ) : null}
         <View>
           <Input
             onChangeText={(text) => setPassword(text)}
@@ -130,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerButton: {
-    padding: 2,
+    padding: 3,
     marginTop: 'auto',
     flexShrink: 1,
   },
@@ -175,6 +221,7 @@ const styles = StyleSheet.create({
   register: {
     color: '#ffff',
     textAlign: 'center',
+    fontWeight: 'bold',
     fontSize: 16,
     marginTop: '0%',
     marginBottom: 10,

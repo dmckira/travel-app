@@ -1,10 +1,12 @@
 import React from 'react'
-import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {GOOGLE_MAPS_KEY} from '@env';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, selectDestination, setDestination, selectUser } from '../slices/navSlice';
 import { firebase } from '../firebase-config';
+
+const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 
 const TaxiForm = ({navigation}) => {
 
@@ -19,17 +21,41 @@ const TaxiForm = ({navigation}) => {
     await firebase.firestore().collection('movements')
       .doc(firebase.auth().currentUser.uid)
       .set({
-        user: user.user,
+        user: {
+          id: firebase.auth().currentUser.uid,
+          name: user.user.name,
+          email: user.user.email,
+          role: user.user.role,
+          cel: user.user.cel,
+        },
         origin,
         destination,
         state: 'Pending',
       })
+
     navigation.navigate('WaitingTaxi')
+
+    setTimeout( async () => {
+      await firebase.firestore().collection('movements')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(docSnapshot => {
+        if (docSnapshot.exists) {
+          firebase.firestore().collection('movements').doc(firebase.auth().currentUser.uid)
+            .update({
+              important: true,
+            });
+        }
+      })
+    }, 10000)
   }
 
   return (
     <SafeAreaView style={styles.containerHeader}>
-      <Text style={styles.textContent}>T R A V E L A P P</Text>
+      {/* <Text style={styles.textContent}>T R A V E L A P P</Text> */}
+      <View style={styles.containerImage}>
+        <Image style={styles.imageLogo} source={travelLogo}></Image>
+      </View>
       <View style={styles.border}/>
       <View>
         <GooglePlacesAutocomplete
@@ -99,6 +125,11 @@ const styles = StyleSheet.create({
     borderColor: '#297273',
     flexShrink: 1,
   },
+  containerImage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   textContent: {
     textAlign: 'center',
     padding: 5,
@@ -130,5 +161,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: '#b5b2b8',
+  },
+  imageLogo: {
+    height: 55,
+    width: 160,
+    border: 0,
+    borderColor: '#ffff',
+    marginTop: 2,
+    marginBottom: 2,
   },
 })
