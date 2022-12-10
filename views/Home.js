@@ -36,7 +36,7 @@ function Home ({navigation}) {
             <TouchableOpacity 
               style={ styles.item }
               onPress={() =>
-              navigation.navigate('Login')
+              navigation.navigate('Profile')
               }>
               <Icon name="person" size={60} color="#ff4e40" />
               <Text style={styles.bienvenidotxt}>
