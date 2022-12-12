@@ -20,12 +20,21 @@ function Profile({navigation}) {
 
   const handleUpdate = async () => {
     try {
-      /* await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
+      console.log('entra al try');
+      await firebase.firestore().collection('users').doc(auth().currentUser.uid)
+      .update({
+        name: name,
+        email: email,
+        cel: cel,
+      });
+      await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
         .then(user => {
           dispatch(setUser({
             user: user.data(),
           }))
-        }) */
+        });
+        Alert.alert('Su perfil ha sido actualizado correctamente')
+        navigation.navigate('Home')
     } catch (error) {
       Alert.alert(error.message);
     }
