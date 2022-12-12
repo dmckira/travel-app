@@ -3,7 +3,7 @@ import { ScrollView, View, Text, Button, Image, ImageBackground, StyleSheet, Tou
 import { Input } from 'react-native-elements';
 import { firebase,  collection, query  } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOrigin, setUser } from '../slices/navSlice';
+import { selectUser, setUser } from '../slices/navSlice';
 
 const background = require('../assets/images/imglogin.jpg');
 const userIcon = require('../assets/images/user.png');
@@ -12,39 +12,23 @@ const travelLogo = require('../assets/images/logotipo-travel.png');
 
 function Profile({navigation}) {
   const dispatch = useDispatch();
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const origin = useSelector(selectOrigin);
+  const user = useSelector(selectUser);
+  const [name, setName] = React.useState(user.user.name);
+  const [email, setEmail] = React.useState(user.user.email);
+  const [cel, setCel] = React.useState(user.user.cel);
   const auth = firebase.auth;
 
-  handleSignIn = async (email, password) => {
+  const handleUpdate = async () => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password)
-      await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
+      /* await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
         .then(user => {
           dispatch(setUser({
             user: user.data(),
           }))
-          if (user.data().role === 'Usuario') {
-            navigation.navigate('Home');
-          } else if(user.data().role === 'Conductor') {
-            navigation.navigate('Driver');
-          } else {
-            setBusJornada();
-            navigation.navigate('Bus');
-          }
-        })
+        }) */
     } catch (error) {
       Alert.alert(error.message);
     }
-  }
-
-  setBusJornada = async () => {
-    await firebase.firestore().collection('users').doc(auth().currentUser.uid)
-      .update({
-        origin,
-        inRuta: true,
-      });
   }
 
   return (
@@ -52,19 +36,21 @@ function Profile({navigation}) {
       <View style={styles.containerImage}>
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>
-        <Image style={styles.imageUserIcon} source={userIcon}></Image>
+        <View style={styles.containerImage}>
+          <Image style={styles.imageUserIcon} source={userIcon}></Image>
+        </View>
       <ScrollView>
       <View>
           <Input
-            onChangeText={(password) => setPassword(password)}
+            onChangeText={(text) => setName(text)}
             placeholder='Nombre'
             autoCapitalize='none'
             autoCorrect={false}
-            secureTextEntry={true}
+            value={name}
             inputStyle={{ marginLeft: 15 }}
             inputContainerStyle={{ borderColor: '#1D8385' }}
             containerStyle={{ marginTop: 5, paddingLeft: 30, paddingRight: 30 }}
-            leftIcon={{ type: 'font-awesome', name: 'user', size: 30, color: '#1D8385', marginLeft: 5 }}
+            leftIcon={{ type: 'font-awesome', name: 'user', size: 25, color: '#1D8385', marginLeft: 5 }}
           />
         </View>
         <View>
@@ -73,27 +59,32 @@ function Profile({navigation}) {
             placeholder='Correo'
             autoCapitalize='none'
             autoCorrect={false}
+            value={email}
             inputStyle={{ marginLeft: 15 }}
             inputContainerStyle={{ borderColor: '#1D8385' }}
-            containerStyle={{ marginTop: 20, paddingLeft: 30, paddingRight: 30 }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
             leftIcon={{ type: 'font-awesome', name: 'envelope', size: 18, color: '#1D8385', marginLeft: 5 }}
+            keyboardType="email-address"
           />
         </View>
         <View>
           <Input
-            //onChangeText={(email) => setEmail(email)}
+            onChangeText={(text) => setCel(text.replace(/[^0-9]/g, ''))}
             placeholder='Celular'
             autoCapitalize='none'
             autoCorrect={false}
+            value={cel}
             inputStyle={{ marginLeft: 15 }}
             inputContainerStyle={{ borderColor: '#1D8385' }}
-            containerStyle={{ marginTop: 20, paddingLeft: 30, paddingRight: 30 }}
-            leftIcon={{ type: 'font-awesome', name: 'mobile', size: 18, color: '#1D8385', marginLeft: 5 }}
+            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
+            leftIcon={{ type: 'font-awesome', name: 'mobile', size: 32, color: '#1D8385', marginLeft: 5 }}
+            keyboardType='numeric'
+            maxLength={10}
           />
         </View>
         <View style={ styles.containerButton }>
           <TouchableOpacity
-            //onPress={() => handleSignIn(email, password)}
+            onPress={handleUpdate}
             style={ styles.button }
           >
             <Text style={ styles.text }>Actualizar</Text>
@@ -135,7 +126,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     border: 0,
-    marginLeft: '40%',
     marginBottom: '10%',
   },
   imageLogo: {
