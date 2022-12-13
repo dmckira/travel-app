@@ -20,7 +20,6 @@ function Profile({navigation}) {
 
   const handleUpdate = async () => {
     try {
-      console.log('entra al try');
       await firebase.firestore().collection('users').doc(auth().currentUser.uid)
       .update({
         name: name,
@@ -103,6 +102,11 @@ function Profile({navigation}) {
     </ImageBackground>
   );
 }
+
+export const sendEmail =  (to, subject, body) => {
+  Linking.openURL(`mailto:${to}?subject=${subject}?body=${body}`);
+}
+
 
 const styles = StyleSheet.create({
   containerImage: {
