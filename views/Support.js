@@ -1,36 +1,31 @@
 import React from 'react'
-import { ScrollView, View, Text, Button, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Text, Button, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert, Linking, useState } from 'react-native';
 import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../slices/navSlice';
+import { selectUser, setUser, useSelector } from '../slices/navSlice';
+import { sendEmail } from '../components/Helpers';
 
 const background = require('../assets/images/imglogin.jpg');
 const imageLogin = require('../assets/images/carro.png');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 
 function Support({navigation}){
-  const dispatch = useDispatch();
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [title, setTitle] = React.useState(setTitle);
+  const emailSupport = 'travel2022app@gmail.com'
+  const [description, setDescription] = React.useState(setDescription);
   const auth = firebase.auth;
 
-  handleSignIn = async (email, password) => {
-    try {
-      await firebase.auth().signInWithEmailAndPassword(email, password)
-      await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
-        .then(user => {
-          dispatch(setUser({
-            user: user.data(),
-          }))
-          if (user.data().role === 'Usuario') {
-            navigation.navigate('Home');
-          } else {
-            navigation.navigate('Driver');
-          }
-        })
-    } catch (error) {
-      Alert.alert(error.message);
+  const help = () => {
+    if(description == '' && title == ''){
+      Alert.alert('Asegurese de que ambos campos no esten vacios.');
+    }
+    else if (description == '') {
+      Alert.alert('El campo de descripción no puede estar vacío');
+    }else if (title == '' ) {
+      Alert.alert('El campo de titulo no puede estar vacío');
+    } else {
+      sendEmail(emailSupport,title,description);
     }
   }
 
@@ -44,7 +39,7 @@ function Support({navigation}){
       <ScrollView>
         <View>
           <Input
-            onChangeText={(email) => setEmail(email)}
+            onChangeText={(title) => setTitle(title)}
             placeholder='Titulo'
             autoCapitalize='none'
             autoCorrect={false}
@@ -56,7 +51,7 @@ function Support({navigation}){
         </View>
         <View>
           <Input
-            //onChangeText={(password) => setPassword(password)}
+          onChangeText={(description) => setDescription(description)}
             multiline={true}
             numberOfLines={4}
             placeholder='Descripción'
@@ -72,7 +67,7 @@ function Support({navigation}){
         </View>
         <View style={ styles.containerButton }>
           <TouchableOpacity
-            //onPress={() => handleSignIn(email, password)}
+            onPress={() => help()}
             style={ styles.button }
           >
             <Text style={ styles.text }>Enviar Mensaje</Text>
