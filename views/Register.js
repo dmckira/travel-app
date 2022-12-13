@@ -1,67 +1,129 @@
 import React from 'react'
 import { ScrollView, View, Text, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Input } from 'react-native-elements';
+import { Dropdown } from 'react-native-element-dropdown';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { firebase } from '../firebase-config';
 
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 
+const data = [
+  { label: 'Propietario', value: 4 },
+  { label: 'Buseta', value: 3 },
+  { label: 'Conductor', value: 2 },
+  { label: 'Usuario', value: 1 },
+];
+
 const Register = ({navigation}) => {
+  const [errorPlaca, setErrorPlaca] = React.useState(null);
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [cel, setCel] = React.useState('');
-  const [role, setRole] = React.useState('');
+  const [role, setRole] = React.useState([]);
   const [placa, setPlaca] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const handleCreateAccount = async () => {
-    if (name === '' || email === '' || cel === '' || password === '' || role === '') {
-      alert('Necesita completar todos los campos');
+  const formatPlaca = (text) => {
+    const regex = /^([A-Z]{3}-\d{3})$/;
+    if (regex.test(text)) {
+      setErrorPlaca(null);
     } else {
-      if (role.toLowerCase() === 'usuario' || role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') {
-        if (role.toLowerCase() === 'usuario' || ((role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') && placa !== '') ) {
-          await firebase.auth().createUserWithEmailAndPassword(email, password)
-          .then(() => {
-            firebase.auth().currentUser.sendEmailVerification({
-              handleCodeInApp: true,
-              url: 'https://travel-app-bd-47b61.firebaseapp.com',
+      setErrorPlaca('La placa debe tener el siguiente formato *AAA-111*');
+    }
+    setPlaca(text);
+  }
+
+  const handleCreateAccount = async () => {
+    if (name === '' || email === '' || cel === '' || password === '' || role.value === undefined) {
+      Alert.alert('Necesita completar todos los campos');
+    } else {
+      if (role.value === 1 || role.value === 2 || role.value === 3 || role.value === 4) {
+        if (role.value === 1 || role.value === 4 || ((role.value === 2 || role.value === 3) && errorPlaca === null && placa !== '') ) {
+          let existPlaca = true;
+          let id;
+          let drivers = [];
+          if (role.value === 2) {
+            await firebase.firestore().collection('taxis')
+            .where("placa", "==", placa)
+            .get()
+            .then(function(querySnapshot) {
+              if (querySnapshot.empty) {
+                Alert.alert('Este número de placa no se encuentra registrado');
+                existPlaca = false;
+              } else {
+                querySnapshot.docs.forEach(doc => {
+                  id = doc.id
+                  drivers = doc.data().drivers
+                })
+              }
             })
+          }
+          if (existPlaca) {
+            await firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
-              alert('Verificación de Email enviada!');
-            }).catch((error) => {
-              alert(error.message);
-            })
-            .then(() => {
-              firebase.firestore().collection('users')
-              .doc(firebase.auth().currentUser.uid)
-              .set(role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus' ? {
-                name,
-                email,
-                cel,
-                role,
-                placa,
-              } : {
-                name,
-                email,
-                cel,
-                role,
+              firebase.auth().currentUser.sendEmailVerification({
+                handleCodeInApp: true,
+                url: 'https://travel-app-bd-47b61.firebaseapp.com',
+              })
+              .then(() => {
+                Alert.alert('Verificación de Email enviada!');
+              }).catch((error) => {
+                Alert.alert(error.message);
+              })
+              .then(() => {
+                const roleLabel = role.label;
+                firebase.firestore().collection('users')
+                .doc(firebase.auth().currentUser.uid)
+                .set(
+                  role.value === 2 || role.value === 3 ? {
+                  name,
+                  email,
+                  cel,
+                  role: roleLabel,
+                  placa,
+                } : {
+                  name,
+                  email,
+                  cel,
+                  role: roleLabel,
+                })
+                if (role.value === 2) {
+                  let driversTmp = [];
+                  if (drivers) {
+                    drivers.forEach(element => {
+                      const driver = element;
+                      driversTmp.push(
+                        driver
+                      )
+                    });
+                    driversTmp.push(firebase.auth().currentUser.uid);
+                  } else {
+                    driversTmp.push(firebase.auth().currentUser.uid);
+                  }
+                  firebase.firestore().collection('taxis')
+                  .doc(id)
+                  .update({
+                    drivers: driversTmp
+                  });
+                }
+                Alert.alert('Guardado!');
+                navigation.navigate('Login');
+              })
+              .catch((error) => {
+                Alert.alert(error.message);
               })
             })
             .catch((error) => {
-              alert(error.message);
+              Alert.alert(error.message);
             })
-          })
-          .catch((error) => {
-            alert(error.message);
-          })
-          alert('Guardado!');
-          navigation.navigate('Login');
+          }
         } else {
-          alert('Debe ingresar la placa de su vehículo');
+          Alert.alert('Debe ingresar la placa de su vehículo');
         }
       } else {
-        alert('El rol debe ser *Usuario*, *Conductor* o *Bus*');
+        Alert.alert('El rol debe ser *Usuario*, *Conductor*, *Bus* o *Propietario*');
       }
     }
   }
@@ -118,28 +180,37 @@ const Register = ({navigation}) => {
           />
         </View>
         <View>
-          <Input
-            onChangeText={(text) => setRole(text)}
-            placeholder='Usuario, Conductor o bus?'
-            autoCapitalize='none'
-            autoCorrect={false}
-            inputStyle={{ marginLeft: 15 }}
-            inputContainerStyle={{ borderColor: '#1D8385' }}
-            containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
-            leftIcon={{ type: 'font-awesome', name: 'users', size: 18, color: '#1D8385', marginLeft: 5 }}
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            containerStyle={{ backgroundColor: '#e9eaed', marginLeft: 15, color: '#929292' }}
+            placeholder='Elige tu rol'
+            data={data}
+            labelField="label"
+            valueField="value"
+            onChange={item => {
+              setRole(item);
+            }}
+            renderLeftIcon={() => (
+              <MaterialIcons name={'groups'} size={25} color='#1D8385' style={{ marginLeft: 5, marginRight: 15}} />
+            )}
           />
         </View>
-        {role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus' ? (
+        {role.value && (role.value === 2 || role.value === 3) ? (
           <View>
             <Input
-              onChangeText={(text) => setPlaca(text)}
-              placeholder='Placa del vehículo'
+              onChangeText={(text) => formatPlaca(text)}
+              value={placa}
+              maxLength={7}
+              placeholder='Placa del vehículo AAA-111'
+              errorMessage={errorPlaca}
               autoCapitalize='none'
               autoCorrect={false}
               inputStyle={{ marginLeft: 15 }}
               inputContainerStyle={{ borderColor: '#1D8385' }}
               containerStyle={{ marginTop: -10, paddingLeft: 30, paddingRight: 30 }}
-              leftIcon={{ type: 'font-awesome', name: 'taxi', size: 18, color: '#1D8385', marginLeft: 5 }}
+              leftIcon={{ type: 'font-awesome', name: ( role.value === 2 ? 'taxi' : 'bus' ), size: 18, color: '#1D8385', marginLeft: 5 }}
             />
           </View>
         ) : null}
@@ -234,6 +305,24 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
     /* Para que no se rompa en dos líneas, y lo translade tal cual. */
     marginLeft: 30,
+  },
+  dropdown: {
+    height: 50,
+    backgroundColor: 'transparent',
+    borderBottomColor: '#1D8385',
+    borderBottomWidth: 1,
+    marginLeft: 29,
+    marginRight: 30,
+    marginBottom: 30,
+    color: '#1D8385'
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#929292',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: 'black',
   },
 });
 
