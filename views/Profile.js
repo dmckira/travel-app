@@ -103,11 +103,6 @@ function Profile({navigation}) {
   );
 }
 
-export const sendEmail =  (to, subject, body) => {
-  Linking.openURL(`mailto:${to}?subject=${subject}?body=${body}`);
-}
-
-
 const styles = StyleSheet.create({
   containerImage: {
     display: 'flex',
