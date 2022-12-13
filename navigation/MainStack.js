@@ -18,6 +18,7 @@ import Busetas from '../views/Busetas';
 import RecoverPassword from '../views/RecoverPassword';
 import AddTaxi from '../views/AddTaxi';
 import Taxis from '../views/Taxis';
+import Profile from '../views/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,6 +83,13 @@ const MainStack = () => {
                 <Stack.Screen
                   name='Support'
                   component={Support}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Profile'
+                  component={Profile}
                   options={{
                     headerShown: false,
                   }}

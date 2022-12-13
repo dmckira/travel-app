@@ -39,12 +39,43 @@ function Home ({navigation}) {
       </Text>
       <View style={styles.container}>
         <Row>
-          {role !== 'Propietario' && role !== '' ? (
-            <View style={ styles.containerButton }>
-              <TouchableOpacity 
-                style={ styles.item }
-                onPress={() =>
-                navigation.navigate('Login')
+        {role !== 'Propietario' && role !== '' ? (
+          <View style={ styles.containerButton }>
+            <TouchableOpacity 
+              style={ styles.item }
+              onPress={() =>
+              navigation.navigate('Profile')
+              }>
+              <Icon name="person" size={60} color="#ff4e40" />
+              <Text style={styles.bienvenidotxt}>
+                Perfil
+              </Text>
+            </TouchableOpacity >
+            <TouchableOpacity 
+              style={ styles.item } 
+              onPress={() =>
+              navigation.navigate('Map')
+              }>
+              <Icon name="local-taxi" size={60} color="#1D8385" />
+              <Text style={styles.bienvenidotxt}>
+                Taxi
+              </Text>
+            </TouchableOpacity >
+            <TouchableOpacity 
+              style={ styles.item }
+              onPress={() =>
+                navigation.navigate('Busetas')
+              }
+              >
+              <Icon name="directions-bus" size={60} color="#1D8385" />
+              <Text style={styles.bienvenidotxt}>
+                Busetas
+              </Text>
+            </TouchableOpacity >
+            <TouchableOpacity 
+              style={ styles.item }
+              onPress={() =>
+                navigation.navigate('Support')
                 }>
                 <Icon name="person" size={60} color="#ff4e40" />
                 <Text style={styles.bienvenidotxt}>
