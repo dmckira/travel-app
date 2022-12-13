@@ -24,7 +24,7 @@ function Login({navigation}) {
           dispatch(setUser({
             user: user.data(),
           }))
-          if (user.data().role === 'Usuario') {
+          if (user.data().role === 'Usuario' || user.data().role === 'Propietario') {
             navigation.navigate('Home');
           } else if(user.data().role === 'Conductor') {
             navigation.navigate('Driver');

@@ -14,7 +14,14 @@ const Row = ({ children }) => (
 )
 
 function Home ({navigation}) {
+  const auth = firebase.auth;
   const user = useSelector(selectUser);
+  const [role, setRole] = React.useState('');
+
+  firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
+    .then(user => {
+      setRole(user.data().role);
+    })
 
   const logout = async () => {
     await firebase.auth().signOut();
@@ -32,49 +39,75 @@ function Home ({navigation}) {
       </Text>
       <View style={styles.container}>
         <Row>
-          <View style={ styles.containerButton }>
-            <TouchableOpacity 
-              style={ styles.item }
-              onPress={() =>
-              navigation.navigate('Login')
-              }>
-              <Icon name="person" size={60} color="#ff4e40" />
-              <Text style={styles.bienvenidotxt}>
-                Perfil
-              </Text>
-            </TouchableOpacity >
-            <TouchableOpacity 
-              style={ styles.item } 
-              onPress={() =>
-              navigation.navigate('Map')
-              }>
-              <Icon name="local-taxi" size={60} color="#1D8385" />
-              <Text style={styles.bienvenidotxt}>
-                Taxi
-              </Text>
-            </TouchableOpacity >
-            <TouchableOpacity 
-              style={ styles.item }
-              onPress={() =>
-                navigation.navigate('Busetas')
-              }
-              >
-              <Icon name="directions-bus" size={60} color="#1D8385" />
-              <Text style={styles.bienvenidotxt}>
-                Busetas
-              </Text>
-            </TouchableOpacity >
-            <TouchableOpacity 
-              style={ styles.item }
-              onPress={() =>
-                navigation.navigate('Support')
+          {role !== 'Propietario' && role !== '' ? (
+            <View style={ styles.containerButton }>
+              <TouchableOpacity 
+                style={ styles.item }
+                onPress={() =>
+                navigation.navigate('Login')
                 }>
-              <Icon name="gear" size={60} color="#929292" />
-              <Text style={styles.bienvenidotxt}>
-                Soporte
-              </Text>
-            </TouchableOpacity >
-          </View>
+                <Icon name="person" size={60} color="#ff4e40" />
+                <Text style={styles.bienvenidotxt}>
+                  Perfil
+                </Text>
+              </TouchableOpacity >
+              <TouchableOpacity 
+                style={ styles.item } 
+                onPress={() =>
+                navigation.navigate('Map')
+                }>
+                <Icon name="local-taxi" size={60} color="#1D8385" />
+                <Text style={styles.bienvenidotxt}>
+                  Taxi
+                </Text>
+              </TouchableOpacity >
+              <TouchableOpacity 
+                style={ styles.item }
+                onPress={() =>
+                  navigation.navigate('Busetas')
+                }
+                >
+                <Icon name="directions-bus" size={60} color="#1D8385" />
+                <Text style={styles.bienvenidotxt}>
+                  Busetas
+                </Text>
+              </TouchableOpacity >
+              <TouchableOpacity 
+                style={ styles.item }
+                onPress={() =>
+                  navigation.navigate('Support')
+                  }>
+                <Icon name="settings" size={60} color="#ff4e40" />
+                <Text style={styles.bienvenidotxt}>
+                  Soporte
+                </Text>
+              </TouchableOpacity >
+            </View>
+            ) : role === '' ? null : (
+              <View style={ styles.containerButton }>
+                <TouchableOpacity 
+                  style={ styles.item }
+                  onPress={() =>
+                  navigation.navigate('Taxis')
+                  }>
+                  <Icon name="visibility" size={60} color="#ff4e40" />
+                  <Text style={styles.bienvenidotxt}>
+                    Ver taxis
+                  </Text>
+                </TouchableOpacity >
+                <TouchableOpacity 
+                  style={ styles.item } 
+                  onPress={() =>
+                  navigation.navigate('AddTaxi')
+                  }>
+                  <Icon name="local-taxi" size={60} color="#1D8385" />
+                  <Text style={styles.bienvenidotxt}>
+                    Agregar taxi
+                  </Text>
+                </TouchableOpacity >
+              </View>
+            )
+          }
         </Row>
         <View style={ styles.containerSignOut }>
           <TouchableOpacity
@@ -83,7 +116,7 @@ function Home ({navigation}) {
               logout
             }
           >
-            <Icon name="logout" size={40} color="#929292" />
+            <Icon name="logout" size={60} color="#929292" />
             <Text style={styles.bienvenidotxt}>
               Salir
             </Text>
@@ -154,7 +187,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start' // if you want to fill rows left to right
+    alignItems: 'flex-start', // if you want to fill rows left to right
+    alignContent: 'center',
   },
   containerSignOut: {
     marginTop: 'auto',
