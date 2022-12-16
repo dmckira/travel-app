@@ -2,6 +2,7 @@ import React from 'react'
 import { ScrollView, View, Text, Image, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
+import { getToken } from '../actions';
 
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
@@ -21,6 +22,8 @@ const Register = ({navigation}) => {
     } else {
       if (role.toLowerCase() === 'usuario' || role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') {
         if (role.toLowerCase() === 'usuario' || ((role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') && placa !== '') ) {
+          const token = await getToken();
+          console.log('este es eñ token de notificaciones',token);
           await firebase.auth().createUserWithEmailAndPassword(email, password)
           .then(() => {
             firebase.auth().currentUser.sendEmailVerification({
