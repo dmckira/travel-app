@@ -25,7 +25,6 @@ function Taxis ({navigation}) {
           });
         });
       setTaxis(taxis);
-      console.log(taxis);
     })
   }, []);
 

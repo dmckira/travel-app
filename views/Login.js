@@ -27,7 +27,40 @@ function Login({navigation}) {
           if (user.data().role === 'Usuario' || user.data().role === 'Propietario') {
             navigation.navigate('Home');
           } else if(user.data().role === 'Conductor') {
-            navigation.navigate('Driver');
+            let canDrive = true;
+            firebase.firestore().collection('taxis')
+            .where("placa", "==", user.data().placa)
+            .get()
+            .then(function(querySnapshot) {
+              if (querySnapshot.empty) {
+                Alert.alert('No tienes ningún taxi asignado');
+              } else {
+                querySnapshot.docs.forEach(doc => {
+                  doc.data().drivers.forEach(dri => {
+                    firebase.firestore().collection('users')
+                    .doc(dri)
+                    .get()
+                    .then(docSnapshot => {
+                      if (docSnapshot.exists) {
+                        if (docSnapshot.data().state === 'inRuta') {
+                          canDrive = false
+                        }
+                      }
+                    })
+                  })
+                })
+              }
+            })
+            if (canDrive) {
+              firebase.firestore().collection('users').doc(auth().currentUser.uid)
+              .update({
+                state: 'inRuta',
+                location: origin,
+              });
+              navigation.navigate('Driver');
+            } else {
+              Alert.alert('No puede iniciar sesión ya que un conductor esta en ruta con el vehículo: ' + user.data().placa)
+            }
           } else {
             setBusJornada();
             navigation.navigate('Bus');

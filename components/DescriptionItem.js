@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: 'bold',
     letterSpacing: 0.25,
-    color: '#b5b2b8',
+    color: 'white',
   },
   /* important: {
     borderWidth: 1,
