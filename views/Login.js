@@ -4,6 +4,8 @@ import { Input } from 'react-native-elements';
 import { firebase } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, setUser } from '../slices/navSlice';
+import { sendPushNotification, setNotificationMessage } from '../actions';
+import Loading from '../components/Loading';
 
 const background = require('../assets/images/imglogin.jpg');
 const imageLogin = require('../assets/images/carro.png');
@@ -13,8 +15,22 @@ function Login({navigation}) {
   const dispatch = useDispatch();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
   const origin = useSelector(selectOrigin);
   const auth = firebase.auth;
+
+  const getDocumentById = async(collection, id) => {
+    const result = { statusResponse: true, error: null, document: null }
+    try {
+        const response = await firebase.firestore().collection(collection).doc(id).get()
+        result.document = response.data()
+        result.document.id = response.id
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result     
+}
 
   handleSignIn = async (email, password) => {
     try {
@@ -25,6 +41,7 @@ function Login({navigation}) {
             user: user.data(),
           }))
           if (user.data().role === 'Usuario') {
+            sendNotification()
             navigation.navigate('Home');
           } else if(user.data().role === 'Conductor') {
             navigation.navigate('Driver');
@@ -35,6 +52,33 @@ function Login({navigation}) {
         })
     } catch (error) {
       Alert.alert(error.message);
+    }
+  }
+
+  const sendNotification = async() => {
+    setLoading(true);
+    const resultToken = await getDocumentById("users", auth().currentUser.uid);
+
+    if (!resultToken.statusResponse) {
+      setLoading(false);
+      Alert.alert("No se pudo obtener el token del usuario");
+      return;
+    }
+
+    const messageNotification = setNotificationMessage(
+      resultToken.document.token,
+      'Bienvenido GUAPO!',
+      'llamame muak!',
+      { data: '+57 378028356' }
+    )
+
+    const response = await sendPushNotification(messageNotification)
+    setLoading(false);
+
+    if (response) {
+      Alert.alert("Mensaje enviado");
+    } else {
+      Alert.alert("No se pudo enviar el mensaje");
     }
   }
 

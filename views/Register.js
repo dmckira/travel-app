@@ -23,7 +23,6 @@ const Register = ({navigation}) => {
       if (role.toLowerCase() === 'usuario' || role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') {
         if (role.toLowerCase() === 'usuario' || ((role.toLowerCase() === 'conductor' || role.toLowerCase() === 'bus') && placa !== '') ) {
           const token = await getToken();
-          console.log('este es eñ token de notificaciones',token);
           await firebase.auth().createUserWithEmailAndPassword(email, password)
           .then(() => {
             firebase.auth().currentUser.sendEmailVerification({
@@ -44,11 +43,13 @@ const Register = ({navigation}) => {
                 cel,
                 role,
                 placa,
+                token,
               } : {
                 name,
                 email,
                 cel,
                 role,
+                token,
               })
             })
             .catch((error) => {
