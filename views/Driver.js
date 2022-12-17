@@ -43,7 +43,9 @@ const Driver = () => {
         }
       })
 
-      movements.push(movementsTmpNo[0]);
+      if (movementsTmpNo[0]) {
+        movements.push(movementsTmpNo[0]);
+      }
       
       dispatch(setMovements({
         movements,
