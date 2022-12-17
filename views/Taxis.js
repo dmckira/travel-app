@@ -1,33 +1,31 @@
-import { ScrollView, StyleSheet, ImageBackground, Text, View, Image, FlatList, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { FlatList, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { firebase } from '../firebase-config';
-import BusetasItem from '../components/BusetasItem';
-import { useNavigation } from '@react-navigation/native';
+import TaxisItem from '../components/TaxisItem';
 
 const background = require('../assets/images/imglogin.jpg');
 const travelLogo = require('../assets/images/logotipo-travel.png');
 
-const Busetas = () => {
-  const [buses, setBuses] = useState([])
-  const navigation = useNavigation(); 
+function Taxis ({navigation}) {
+  const [taxis, setTaxis] = useState([]);
+  const auth = firebase.auth;
 
   useEffect(() => {
-    firebase.firestore().collection('users').onSnapshot(querySnapshot => {
-      const buses = [];
-      querySnapshot.docs.forEach(doc => {
-        if (doc.data().role.toLowerCase() === 'bus' && doc.data().inRuta) {
-          const {name, placa, email, role, origin} = doc.data();
-          buses.push({
+    firebase.firestore().collection('taxis')
+      .where("propietario", "==", auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        const taxis = [];
+        querySnapshot.docs.forEach(doc => {
+          const {propietario, placa, drivers} = doc.data();
+          taxis.push({
             id: doc.id,
-            name,
+            propietario,
             placa,
-            email,
-            role,
-            origin,
+            drivers: drivers ? drivers : null,
           });
-        }
-      });
-      setBuses(buses);
+        });
+      setTaxis(taxis);
+      console.log(taxis);
     })
   }, []);
 
@@ -40,18 +38,18 @@ const Busetas = () => {
       <View style={styles.containerImage}>
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>
-      <Text style={styles.textContent}>B U S E T A S</Text>
+      <Text style={styles.textContent}>T A X I S</Text>
       <View style={styles.border}/>
       <View style={styles.container}>
         <FlatList
-          data={buses}
+          data={taxis}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({item}) => (
-            <BusetasItem
-              title={item.name}
-              origin={item.origin.description}
+            <TaxisItem
+              id={item.id}
               placa={item.placa}
-              userId={item.id}
+              propietario={item.propietario}
+              drivers={item.drivers}
             />
           )}
         />
@@ -105,6 +103,12 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#ff4e40',
   },
+  border: {
+    borderTopWidth: 1,
+    borderColor: '#ff4e40',
+    flexShrink: 1,
+    margin: 10,
+  },
   button: {
     margin: 10,
     backgroundColor: '#ff4e40',
@@ -115,12 +119,6 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     elevation: 3,
   },
-  border: {
-    borderTopWidth: 1,
-    borderColor: '#ff4e40',
-    flexShrink: 1,
-    margin: 10,
-  },
   text: {
     fontSize: 16,
     lineHeight: 21,
@@ -130,4 +128,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Busetas
+export default Taxis

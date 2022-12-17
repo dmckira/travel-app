@@ -20,7 +20,6 @@ function Profile({navigation}) {
 
   const handleUpdate = async () => {
     try {
-      console.log('entra al try');
       await firebase.firestore().collection('users').doc(auth().currentUser.uid)
       .update({
         name: name,
