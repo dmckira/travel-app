@@ -52,7 +52,6 @@ const TaxiForm = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.containerHeader}>
-      {/* <Text style={styles.textContent}>T R A V E L A P P</Text> */}
       <View style={styles.containerImage}>
         <Image style={styles.imageLogo} source={travelLogo}></Image>
       </View>

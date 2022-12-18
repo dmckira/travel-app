@@ -35,18 +35,22 @@ const Driver = () => {
         });
       });
 
-      movementsTmp.filter(item => {
-        if (item.important) {
-          movements.push(item);
-        } else {
-          movementsTmpNo.push(item);
+      if (movementsTmp.length === 0) {
+        movements.push(null);
+      } else {
+        movementsTmp.filter(item => {
+          if (item.important) {
+            movements.push(item);
+          } else {
+            movementsTmpNo.push(item);
+          }
+        })
+  
+        if (movementsTmpNo[0]) {
+          movements.push(movementsTmpNo[0]);
         }
-      })
-
-      if (movementsTmpNo[0]) {
-        movements.push(movementsTmpNo[0]);
       }
-      
+
       dispatch(setMovements({
         movements,
       }))

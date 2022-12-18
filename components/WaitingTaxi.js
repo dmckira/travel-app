@@ -4,7 +4,6 @@ import * as Animatable from 'react-native-animatable';
 import { firebase } from '../firebase-config';
 
 const WaitingTaxi = ({navigation}) => {
-
   const [movement, setMovement] = useState([])
 
   useEffect(() => {
