@@ -4,6 +4,7 @@ import { Input } from 'react-native-elements';
 import { Dropdown } from 'react-native-element-dropdown';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { firebase } from '../firebase-config';
+import { getToken } from '../actions';
 
 const background = require('../assets/images/Interfacesfondos.jpg');
 const imageLogin = require('../assets/images/carro.png');
@@ -61,6 +62,7 @@ const Register = ({navigation}) => {
             })
           }
           if (existPlaca) {
+            const token = await getToken();
             await firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
               firebase.auth().currentUser.sendEmailVerification({
@@ -83,11 +85,13 @@ const Register = ({navigation}) => {
                   cel,
                   role: roleLabel,
                   placa,
+                  token,
                 } : {
                   name,
                   email,
                   cel,
                   role: roleLabel,
+                  token,
                 })
                 if (role.value === 2) {
                   let driversTmp = [];
