@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GOOGLE_MAPS_KEY } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOrigin, selectDestination } from '../slices/navSlice';
+import { selectOrigin, selectDestination, setTravelTimeInformation } from '../slices/navSlice';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+import { firebase } from '../firebase-config';
 
 //Components
 import TaxiForm from "../components/TaxiForm";
@@ -17,10 +18,26 @@ const carImage = require('../assets/images/car.png');
 const userImage = require('../assets/images/user.png');
 
 const Map = ({navigation}) => {
+  const dispatch = useDispatch();
   const Stack = createNativeStackNavigator();
   const origin = useSelector(selectOrigin);
   const destination = useSelector(selectDestination);
   const mapRef = useRef(null);
+  const [driver, setDriver] = useState([])
+  console.log('driver map: ', driver.location.lat);
+
+  useEffect(() => {
+    firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
+      querySnapshot.docs.forEach(doc => {
+        if (doc.id === firebase.auth().currentUser.uid) {
+          if(doc.data().driver) {
+            console.log('doc.data().driver: ', doc.data().driver);
+            setDriver(doc.data().driver);
+          }
+        }
+      });
+    })
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -83,6 +100,26 @@ const Map = ({navigation}) => {
               }}
             />
           )}
+          {origin && driver ? (
+            <MapViewDirections
+            origin = {{
+              latitude: driver.location.lat,
+              longitude: driver.location.lng,
+            }}
+            destination = {{
+              latitude: origin.location.lat,
+              longitude: origin.location.lng,
+            }}
+            apikey = {GOOGLE_MAPS_KEY}
+            strokeColor = "orange"
+            strokeWidth={3}
+            onReady={result => {
+              dispatch(setTravelTimeInformation({
+                time: result.duration.toFixed(0),
+              }))
+            }}
+          />
+          ) : null}
         </MapView>
       </View>
       <View style={styles.containerForm}>

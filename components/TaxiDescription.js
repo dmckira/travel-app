@@ -28,7 +28,9 @@ const TaxiDescription = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.containerHeader}>
-      <Text style={styles.textContent}>T R A V E L A P P</Text>
+      <View style={styles.containerImage}>
+        <Image style={styles.imageLogo} source={travelLogo}></Image>
+      </View>
       <View style={styles.border}/>
       {movement.driver ? (
         <View style={styles.containerBody}>
@@ -86,6 +88,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#297273',
     flexShrink: 1,
+  },
+  containerImage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   titleContainer: {
     flexDirection: 'row',
@@ -145,6 +152,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: '#b5b2b8',
+  },
+  imageLogo: {
+    height: 55,
+    width: 160,
+    border: 0,
+    borderColor: '#ffff',
+    marginTop: 2,
+    marginBottom: 2,
   },
 })
 

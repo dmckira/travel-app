@@ -101,9 +101,6 @@ const DriverMap = ({navigation}) => {
                       top: 50, right: 50, bottom: 50, left: 50
                     }
                   })
-                  /* dispatch(setTravelTimeInformation({
-                    time: result.duration.toFixed(0),
-                  })) */
                 }}
               />
               <MapViewDirections
@@ -119,11 +116,6 @@ const DriverMap = ({navigation}) => {
                 strokeColor = "orange"
                 strokeWidth={3}
                 onReady={result => {
-                  /* mapRef.current.fitToCoordinates(result.coordinates, {
-                    edgePadding: {
-                      top: 50, right: 50, bottom: 50, left: 50
-                    }
-                  }) */
                   dispatch(setTravelTimeInformation({
                     time: result.duration.toFixed(0),
                   }))
@@ -135,7 +127,9 @@ const DriverMap = ({navigation}) => {
       </View>
       <View style={styles.containerForm}>
         <SafeAreaView style={styles.containerHeader}>
-          <Text style={styles.textContent}>T R A V E L A P P</Text>
+          <View style={styles.containerImage}>
+            <Image style={styles.imageLogo} source={travelLogo}></Image>
+          </View>
           <View style={styles.border}/>
           {movement.movement.driver ? (
             <View style={styles.containerBody}>
@@ -212,6 +206,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#297273',
     flexShrink: 1,
+  },
+  containerImage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   map: {
     flex: 1,
@@ -343,6 +342,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: '#b5b2b8',
+  },
+  imageLogo: {
+    height: 55,
+    width: 160,
+    border: 0,
+    borderColor: '#ffff',
+    marginTop: 2,
+    marginBottom: 2,
   },
 });
 
