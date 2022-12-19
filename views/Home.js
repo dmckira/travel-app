@@ -14,9 +14,22 @@ const Row = ({ children }) => (
 )
 
 function Home ({navigation}) {
+  const auth = firebase.auth;
   const user = useSelector(selectUser);
+  const [role, setRole] = React.useState('');
+
+  firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
+    .then(user => {
+      setRole(user.data().role);
+    })
 
   const logout = async () => {
+    if (user.user.role === 'Conductor') {
+      await firebase.firestore().collection('users').doc(auth().currentUser.uid)
+      .update({
+        state: 'offline',
+      });
+    }
     await firebase.auth().signOut();
     navigation.navigate('Login')
   }
@@ -32,6 +45,7 @@ function Home ({navigation}) {
       </Text>
       <View style={styles.container}>
         <Row>
+        {role !== 'Propietario' && role !== '' ? (
           <View style={ styles.containerButton }>
             <TouchableOpacity 
               style={ styles.item }
@@ -64,17 +78,42 @@ function Home ({navigation}) {
                 Busetas
               </Text>
             </TouchableOpacity >
-            <TouchableOpacity 
-              style={ styles.item }
-              onPress={() =>
-                navigation.navigate('Support')
-                }>
-              <Icon name="gear" size={60} color="#929292" />
-              <Text style={styles.bienvenidotxt}>
-                Soporte
-              </Text>
-            </TouchableOpacity >
-          </View>
+              <TouchableOpacity 
+                style={ styles.item }
+                onPress={() =>
+                  navigation.navigate('Support')
+                  }>
+                <Icon name="settings" size={60} color="#ff4e40" />
+                <Text style={styles.bienvenidotxt}>
+                  Soporte
+                </Text>
+              </TouchableOpacity >
+            </View>
+            ) : role === '' ? null : (
+              <View style={ styles.containerButton }>
+                <TouchableOpacity 
+                  style={ styles.item }
+                  onPress={() =>
+                  navigation.navigate('Taxis')
+                  }>
+                  <Icon name="visibility" size={60} color="#ff4e40" />
+                  <Text style={styles.bienvenidotxt}>
+                    Ver taxis
+                  </Text>
+                </TouchableOpacity >
+                <TouchableOpacity 
+                  style={ styles.item } 
+                  onPress={() =>
+                  navigation.navigate('AddTaxi')
+                  }>
+                  <Icon name="local-taxi" size={60} color="#1D8385" />
+                  <Text style={styles.bienvenidotxt}>
+                    Agregar taxi
+                  </Text>
+                </TouchableOpacity >
+              </View>
+            )
+          }
         </Row>
         <View style={ styles.containerSignOut }>
           <TouchableOpacity
@@ -83,7 +122,7 @@ function Home ({navigation}) {
               logout
             }
           >
-            <Icon name="logout" size={40} color="#929292" />
+            <Icon name="logout" size={60} color="#929292" />
             <Text style={styles.bienvenidotxt}>
               Salir
             </Text>
@@ -154,7 +193,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start' // if you want to fill rows left to right
+    alignItems: 'flex-start', // if you want to fill rows left to right
+    alignContent: 'center',
   },
   containerSignOut: {
     marginTop: 'auto',

@@ -35,16 +35,22 @@ const Driver = () => {
         });
       });
 
-      movementsTmp.filter(item => {
-        if (item.important) {
-          movements.push(item);
-        } else {
-          movementsTmpNo.push(item);
+      if (movementsTmp.length === 0) {
+        movements.push(null);
+      } else {
+        movementsTmp.filter(item => {
+          if (item.important) {
+            movements.push(item);
+          } else {
+            movementsTmpNo.push(item);
+          }
+        })
+  
+        if (movementsTmpNo[0]) {
+          movements.push(movementsTmpNo[0]);
         }
-      })
+      }
 
-      movements.push(movementsTmpNo[0]);
-      
       dispatch(setMovements({
         movements,
       }))
@@ -65,7 +71,8 @@ const Driver = () => {
       <View style={styles.border}/>
       <View style={styles.container}>
         {movements ? (
-          <FlatList
+          movements.movements[0] ? (
+            <FlatList
             data={movements.movements}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({item}) => (
@@ -96,7 +103,12 @@ const Driver = () => {
               ) : null
             )}
           />
-        ) : null}
+          ) : (null)
+        ) : (
+          <View style={{ alignItems: 'center' }}>
+            <Text style={ styles.textMovements }>No hay solicitudes</Text>
+          </View>
+        )}
       </View>
       <View style={ styles.containerButton }>
         <Pressable
@@ -169,6 +181,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: '#b5b2b8',
+  },
+  textMovements: {
+    marginTop: '50%',
+    textAlign: 'center',
+    fontSize: 24,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
   },
 })
 

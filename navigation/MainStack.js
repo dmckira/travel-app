@@ -16,7 +16,10 @@ import DriverMap from '../views/DriverMap';
 import Bus from '../views/Bus';
 import Busetas from '../views/Busetas';
 import RecoverPassword from '../views/RecoverPassword';
+import AddTaxi from '../views/AddTaxi';
+import Taxis from '../views/Taxis';
 import Profile from '../views/Profile';
+import TaxiMap from '../views/TaxiMap';
 
 const Stack = createNativeStackNavigator();
 
@@ -123,6 +126,27 @@ const MainStack = () => {
                 <Stack.Screen
                   name='Map'
                   component={Map}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='AddTaxi'
+                  component={AddTaxi}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='Taxis'
+                  component={Taxis}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='TaxiMap'
+                  component={TaxiMap}
                   options={{
                     headerShown: false,
                   }}

@@ -5,17 +5,17 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { toggleAnimation } from '../animations/toggleAnimation';
 import { firebase } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, setUser, setMovements, selectMovements } from '../slices/navSlice';
+import { selectUser, setUser, setMovement, selectOrigin } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const DescriptionItem = ({ id, title, origin, destination, userId, hide, important }) => {
   const [showContent, setShowContent] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
-  const movements = useSelector(selectMovements);
   const navigation = useNavigation(); 
   const auth = firebase.auth;
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const originDriver = useSelector(selectOrigin);
 
   const toggleListItem = () => {
     const config = {
@@ -48,7 +48,8 @@ const DescriptionItem = ({ id, title, origin, destination, userId, hide, importa
           name: user.user.name,
           email: user.user.email,
           role: user.user.role,
-          placa: user.user.placa
+          placa: user.user.placa,
+          location: originDriver.location,
         }
       });
 
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: 'bold',
     letterSpacing: 0.25,
-    color: '#b5b2b8',
+    color: 'white',
   },
   /* important: {
     borderWidth: 1,
