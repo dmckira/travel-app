@@ -1,16 +1,54 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Pressable, Image } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Pressable, Image, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectTravelTimeInformation, setDestination } from '../slices/navSlice'
 import { firebase } from '../firebase-config';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+import { sendPushNotification, setNotificationMessage } from '../actions';
 
 const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 
 const TaxiDescription = ({navigation}) => {
   const dispatch = useDispatch();
   const [movement, setMovement] = useState([]);
+  const [notify, setNotify] = useState(false);
   const time = useSelector(selectTravelTimeInformation);
+  const auth = firebase.auth;
+
+  const getDocumentById = async(collection, id) => {
+    const result = { statusResponse: true, error: null, document: null }
+    try {
+        const response = await firebase.firestore().collection(collection).doc(id).get()
+        result.document = response.data()
+        result.document.id = response.id
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result     
+  }
+
+  const sendNotification = async() => {
+    if (!notify) {
+      const resultToken = await getDocumentById("users", auth().currentUser.uid);
+
+      if (!resultToken.statusResponse) {
+        Alert.alert("No se pudo obtener el token del usuario");
+        return;
+      }
+
+      const messageNotification = setNotificationMessage(
+        resultToken.document.token,
+        'Prepárate!',
+        'Tu taxi ya esta llegando',
+        { data: 'Apúrate' }
+      )
+
+      const response = await sendPushNotification(messageNotification)
+
+      setNotify(true);
+    }
+  }
 
   useEffect(() => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
@@ -46,7 +84,7 @@ const TaxiDescription = ({navigation}) => {
             {time ? (
               <View style={styles.bodyTimer}>
                 <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 5}} />
-                <Text style={ styles.bodyText }>{time.time} Minutos de distancia</Text>
+                <Text style={ styles.bodyText }>{time.time <= 1 ? sendNotification() && time.time : time.time} Minutos de distancia</Text>
               </View>
             ) : null}
           </View>

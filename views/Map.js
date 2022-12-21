@@ -30,7 +30,6 @@ const Map = ({navigation}) => {
       querySnapshot.docs.forEach(doc => {
         if (doc.id === firebase.auth().currentUser.uid) {
           if(doc.data().driver) {
-            console.log('doc.data().driver: ', doc.data().driver);
             setDriver(doc.data().driver);
           }
         }

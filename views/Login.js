@@ -19,19 +19,6 @@ function Login({navigation}) {
   const origin = useSelector(selectOrigin);
   const auth = firebase.auth;
 
-  const getDocumentById = async(collection, id) => {
-    const result = { statusResponse: true, error: null, document: null }
-    try {
-        const response = await firebase.firestore().collection(collection).doc(id).get()
-        result.document = response.data()
-        result.document.id = response.id
-    } catch (error) {
-        result.statusResponse = false
-        result.error = error
-    }
-    return result     
-}
-
   handleSignIn = async (email, password) => {
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password)
@@ -41,7 +28,6 @@ function Login({navigation}) {
             user: user.data(),
           }))
           if (user.data().role === 'Usuario' || user.data().role === 'Propietario') {
-            sendNotification()
             navigation.navigate('Home');
           } else if(user.data().role === 'Conductor') {
             let canDrive = true;
@@ -85,33 +71,6 @@ function Login({navigation}) {
         })
     } catch (error) {
       Alert.alert(error.message);
-    }
-  }
-
-  const sendNotification = async() => {
-    setLoading(true);
-    const resultToken = await getDocumentById("users", auth().currentUser.uid);
-
-    if (!resultToken.statusResponse) {
-      setLoading(false);
-      Alert.alert("No se pudo obtener el token del usuario");
-      return;
-    }
-
-    const messageNotification = setNotificationMessage(
-      resultToken.document.token,
-      'Bienvenido GUAPO!',
-      'llamame muak!',
-      { data: '+57 378028356' }
-    )
-
-    const response = await sendPushNotification(messageNotification)
-    setLoading(false);
-
-    if (response) {
-      Alert.alert("Mensaje enviado");
-    } else {
-      Alert.alert("No se pudo enviar el mensaje");
     }
   }
 
