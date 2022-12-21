@@ -47,7 +47,7 @@ const TaxiForm = ({navigation}) => {
             });
         }
       })
-    }, 10000)
+    }, 60000)
   }
 
   return (

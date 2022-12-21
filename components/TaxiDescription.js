@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Pressable } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Pressable, Image } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectTravelTimeInformation, setDestination } from '../slices/navSlice'
 import { firebase } from '../firebase-config';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+
+const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 
 const TaxiDescription = ({navigation}) => {
   const dispatch = useDispatch();

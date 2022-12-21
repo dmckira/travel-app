@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity, Image } from 'react-native';
 import Modal from 'react-native-modal';
 import MapView, {Marker,Polyline,LatLng} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -12,6 +12,7 @@ import { Icon } from 'react-native-elements/dist/icons/Icon';
 
 const carImage = require('../assets/images/car.png');
 const userImage = require('../assets/images/user.png');
+const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 
 const DriverMap = ({navigation}) => {
   const dispatch = useDispatch();

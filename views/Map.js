@@ -24,7 +24,6 @@ const Map = ({navigation}) => {
   const destination = useSelector(selectDestination);
   const mapRef = useRef(null);
   const [driver, setDriver] = useState([])
-  console.log('driver map: ', driver.location.lat);
 
   useEffect(() => {
     firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
@@ -100,25 +99,35 @@ const Map = ({navigation}) => {
               }}
             />
           )}
-          {origin && driver ? (
-            <MapViewDirections
-            origin = {{
-              latitude: driver.location.lat,
-              longitude: driver.location.lng,
-            }}
-            destination = {{
-              latitude: origin.location.lat,
-              longitude: origin.location.lng,
-            }}
-            apikey = {GOOGLE_MAPS_KEY}
-            strokeColor = "orange"
-            strokeWidth={3}
-            onReady={result => {
-              dispatch(setTravelTimeInformation({
-                time: result.duration.toFixed(0),
-              }))
-            }}
-          />
+          {origin && driver.length !== 0 ? (
+            <>
+              <MapViewDirections
+                origin = {{
+                  latitude: driver.location.lat,
+                  longitude: driver.location.lng,
+                }}
+                destination = {{
+                  latitude: origin.location.lat,
+                  longitude: origin.location.lng,
+                }}
+                apikey = {GOOGLE_MAPS_KEY}
+                strokeColor = "orange"
+                strokeWidth={3}
+                onReady={result => {
+                  dispatch(setTravelTimeInformation({
+                    time: result.duration.toFixed(0),
+                  }))
+                }}
+              />
+              <Marker
+              image={carImage}
+              coordinate={{
+                latitude: driver.location.lat,
+                longitude: driver.location.lng,
+              }}
+              identifier='originDriver'
+            />
+            </>
           ) : null}
         </MapView>
       </View>
