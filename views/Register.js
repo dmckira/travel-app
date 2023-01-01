@@ -62,9 +62,12 @@ const Register = ({navigation}) => {
             })
           }
           if (existPlaca) {
+            Alert.alert('Obtener Token');
             const token = await getToken();
+            Alert.alert('Crea usuario');
             await firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
+              Alert.alert('Envía email');
               firebase.auth().currentUser.sendEmailVerification({
                 handleCodeInApp: true,
                 url: 'https://travel-app-bd-47b61.firebaseapp.com',

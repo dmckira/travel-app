@@ -2,10 +2,33 @@
   "expo": {
     "name": "travel-app",
     "slug": "travel-app",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
+    "platforms": [
+      "android"
     ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/iconoapk.png",
+    "assetBundlePatterns": [
+      "assets/*"
+    ],
+    "android": {
+      "package": "com.travel.app.android.map",
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCYkFbIGHefNAc-DVozOZ5OEkMAIa9ZFng"
+        }
+      },
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi":true,
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
     "extra": {
       "eas": {
         "projectId": "eb0d7262-9a53-4984-872d-bd4bf206fb6a"

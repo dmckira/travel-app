@@ -11,7 +11,8 @@ const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 const TaxiDescription = ({navigation}) => {
   const dispatch = useDispatch();
   const [movement, setMovement] = useState([]);
-  const [notify, setNotify] = useState(false);
+  const [notifyTime, setNotifyTime] = useState(false);
+  const [notifyArrive, setNotifyArrive] = useState(false);
   const time = useSelector(selectTravelTimeInformation);
   const auth = firebase.auth;
 
@@ -28,8 +29,8 @@ const TaxiDescription = ({navigation}) => {
     return result     
   }
 
-  const sendNotification = async() => {
-    if (!notify) {
+  const sendNotificationTime = async() => {
+    if (!notifyTime) {
       const resultToken = await getDocumentById("users", auth().currentUser.uid);
 
       if (!resultToken.statusResponse) {
@@ -37,6 +38,9 @@ const TaxiDescription = ({navigation}) => {
         return;
       }
 
+        title = 'Apúrate!';
+        description = 'Tu taxi te esta esperando';
+  
       const messageNotification = setNotificationMessage(
         resultToken.document.token,
         'Prepárate!',
@@ -46,7 +50,29 @@ const TaxiDescription = ({navigation}) => {
 
       const response = await sendPushNotification(messageNotification)
 
-      setNotify(true);
+      setNotifyTime(true);
+    }
+  }
+
+  const sendNotificationArrive = async() => {
+    if (!notifyArrive) {
+      const resultToken = await getDocumentById("users", auth().currentUser.uid);
+
+      if (!resultToken.statusResponse) {
+        Alert.alert("No se pudo obtener el token del usuario");
+        return;
+      }
+  
+      const messageNotification = setNotificationMessage(
+        resultToken.document.token,
+        'Apúrate!',
+        'Tu taxi te esta esperando',
+        { data: 'Apúrate' }
+      )
+
+      const response = await sendPushNotification(messageNotification)
+
+      setNotifyArrive(true);
     }
   }
 
@@ -84,7 +110,7 @@ const TaxiDescription = ({navigation}) => {
             {time ? (
               <View style={styles.bodyTimer}>
                 <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 5}} />
-                <Text style={ styles.bodyText }>{time.time <= 1 ? sendNotification() && time.time : time.time} Minutos de distancia</Text>
+                <Text style={ styles.bodyText }>{time.time <= 1 ? sendNotificationTime() && time.time : time.time} Minutos de distancia</Text>
               </View>
             ) : null}
           </View>
@@ -95,7 +121,9 @@ const TaxiDescription = ({navigation}) => {
         <View
           style={ styles.button } 
         >
-          {movement.state === 'Arrive' ? (
+          {movement.state === 'Arrive' ? 
+          sendNotificationArrive() &&
+          (
             <Text style={ styles.text }>¡Tu taxi te esta esperando!</Text>
           ) : (
             <Text style={ styles.text }>¡Tu taxi va en camino!</Text>
