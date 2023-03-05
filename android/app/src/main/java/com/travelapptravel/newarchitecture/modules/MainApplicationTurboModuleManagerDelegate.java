@@ -1,4 +1,4 @@
-package com.travelapp.newarchitecture.modules;
+package com.travelapptravel.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

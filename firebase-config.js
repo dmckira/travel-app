@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "travel-app-bd-47b61",
   storageBucket: "travel-app-bd-47b61.appspot.com",
   messagingSenderId: "451825058512",
-  appId: "1:451825058512:web:563b8c1896a953550514d5"
+  appId: "1:451825058512:web:e152759bc8d3c44e0514d5"
 };
 
 if (!firebase.apps.length) {

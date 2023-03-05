@@ -57,15 +57,10 @@ export const startNotifications = (notificationListener, responseListener) => {
 
 export const sendPushNotification = async(message) => {
   let response = false;
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "aplication/json",
-      "Accept-encoding": "gzip, deflate",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
-  }).then(() => response = true)
+  await Notifications.scheduleNotificationAsync({
+    content: message,
+    trigger: { seconds: 2 },
+  });
 
   return response;
 }

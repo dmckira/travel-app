@@ -49,7 +49,6 @@ const Map = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          mapType="mutedStandard"
           initialRegion={{
             latitude: origin.location.lat,
             longitude: origin.location.lng,

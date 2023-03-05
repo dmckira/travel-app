@@ -46,6 +46,7 @@ const MainStack = () => {
     let address = await Location.reverseGeocodeAsync({latitude: current.lat, longitude: current.lng});
     const description = `${address[0].street}, ${address[0].streetNumber}`
 
+    console.log('location: ', location);
     dispatch(setOrigin({
       description,
       location: current,

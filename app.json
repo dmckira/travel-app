@@ -5,22 +5,22 @@
     "platforms": [
       "android"
     ],
-    "version": "1.0.0",
+    "version": "1.2",
     "orientation": "portrait",
     "icon": "./assets/images/iconoapk.png",
     "assetBundlePatterns": [
       "assets/*"
     ],
     "android": {
-      "package": "com.travel.app.android.map",
-      "versionCode": 1,
+      "package": "com.travelapptravel",
+      "versionCode": 3,
+      "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCYkFbIGHefNAc-DVozOZ5OEkMAIa9ZFng"
+          "apiKey": "AIzaSyC9YIRIWcYg8Khq10tlAj0HuKQW2nrHLag"
         }
       },
-      "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi":true,
+      "useNextNotificationsApi": true,
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -29,10 +29,20 @@
         "ACCESS_FINE_LOCATION"
       ]
     },
+    "plugins": [
+      [
+        "expo-notifications"
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "eb0d7262-9a53-4984-872d-bd4bf206fb6a"
       }
-    }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/eb0d7262-9a53-4984-872d-bd4bf206fb6a"
+    },
+    "ios": {}
   }
 }

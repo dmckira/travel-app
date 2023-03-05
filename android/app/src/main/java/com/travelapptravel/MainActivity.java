@@ -1,4 +1,4 @@
-package com.travelapp;
+package com.travelapptravel;
 
 import android.os.Build;
 import android.os.Bundle;

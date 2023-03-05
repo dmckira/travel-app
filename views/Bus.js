@@ -38,7 +38,7 @@ const Bus = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          mapType="mutedStandard"
+          mapType={"mutedStandard"}
           initialRegion={{
             latitude: origin.location.lat,
             longitude: origin.location.lng,

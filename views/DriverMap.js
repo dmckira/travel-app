@@ -46,7 +46,7 @@ const DriverMap = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          mapType="mutedStandard"
+          mapType={"mutedStandard"}
           /* initialRegion={{
             latitude: origin.location.lat,
             longitude: origin.location.lng,
@@ -133,7 +133,7 @@ const DriverMap = ({navigation}) => {
           </View>
           <View style={styles.border}/>
           {movement.movement.driver ? (
-            <View style={styles.containerBody}>
+            <ScrollView style={styles.containerBody}>
               <View style={styles.titleContainer}>
                 <Icon color='#0F6769' name='account-circle' size={40} style={{marginRight: 10}} />
                   <Text style={styles.title}>{movement.movement.user.name} - {movement.movement.user.cel}</Text>
@@ -150,7 +150,7 @@ const DriverMap = ({navigation}) => {
                 ) : null}
               </View>
               
-            </View>
+            </ScrollView>
           ) : null}
           <View style={ styles.containerButton }>
             <Pressable
@@ -198,11 +198,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     margin: '5%',
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
   },
   containerButton: {
     padding: 2,
+    height: 100,
     marginTop: 'auto',
     borderTopWidth: 1,
     borderColor: '#297273',

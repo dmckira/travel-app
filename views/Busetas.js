@@ -15,7 +15,7 @@ const Busetas = () => {
     firebase.firestore().collection('users').onSnapshot(querySnapshot => {
       const buses = [];
       querySnapshot.docs.forEach(doc => {
-        if (doc.data().role.toLowerCase() === 'bus' && doc.data().inRuta) {
+        if (doc.data().role.toLowerCase() === 'buseta' && doc.data().inRuta) {
           const {name, placa, email, role, origin} = doc.data();
           buses.push({
             id: doc.id,

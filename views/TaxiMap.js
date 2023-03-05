@@ -29,7 +29,7 @@ const TaxiMap = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          mapType="mutedStandard"
+          mapType={"mutedStandard"}
           initialRegion={{
             latitude: driver.location.location.lat,
             longitude: driver.location.location.lng,
@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
   },
   containerButton: {
     padding: 2,
+    height: 150,
     marginTop: 'auto',
     borderTopWidth: 1,
     borderColor: '#297273',

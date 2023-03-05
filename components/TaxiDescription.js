@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Pressable, Image, Alert } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Pressable, Image, Alert, ScrollView } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectTravelTimeInformation, setDestination } from '../slices/navSlice'
 import { firebase } from '../firebase-config';
@@ -38,9 +38,6 @@ const TaxiDescription = ({navigation}) => {
         return;
       }
 
-        title = 'Apúrate!';
-        description = 'Tu taxi te esta esperando';
-  
       const messageNotification = setNotificationMessage(
         resultToken.document.token,
         'Prepárate!',
@@ -99,7 +96,7 @@ const TaxiDescription = ({navigation}) => {
       </View>
       <View style={styles.border}/>
       {movement.driver ? (
-        <View style={styles.containerBody}>
+        <ScrollView style={styles.containerBody}>
           <View style={styles.titleContainer}>
             <Icon color='#0F6769' name='local-taxi' size={40} style={{marginRight: 10}} />
               <Text style={styles.title}>{movement.driver.name} - {movement.driver.placa}</Text>
@@ -115,7 +112,7 @@ const TaxiDescription = ({navigation}) => {
             ) : null}
           </View>
           
-        </View>
+        </ScrollView>
       ) : null}
       <View style={ styles.containerButton }>
         <View
@@ -152,6 +149,7 @@ const styles = StyleSheet.create({
   },
   containerButton: {
     padding: 2,
+    height: 100,
     marginTop: 'auto',
     borderTopWidth: 1,
     borderColor: '#297273',

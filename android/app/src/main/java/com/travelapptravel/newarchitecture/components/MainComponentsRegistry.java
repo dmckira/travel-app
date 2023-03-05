@@ -1,4 +1,4 @@
-package com.travelapp.newarchitecture.components;
+package com.travelapptravel.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
