@@ -15,6 +15,7 @@ import Driver from '../views/Driver';
 import DriverMap from '../views/DriverMap';
 import Bus from '../views/Bus';
 import Busetas from '../views/Busetas';
+import BusetasMap from '../views/BusetasMap';
 import RecoverPassword from '../views/RecoverPassword';
 import AddTaxi from '../views/AddTaxi';
 import Taxis from '../views/Taxis';
@@ -120,6 +121,13 @@ const MainStack = () => {
                 <Stack.Screen
                   name='Busetas'
                   component={Busetas}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name='BusetasMap'
+                  component={BusetasMap}
                   options={{
                     headerShown: false,
                   }}

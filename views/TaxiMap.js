@@ -29,7 +29,6 @@ const TaxiMap = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          mapType={"mutedStandard"}
           initialRegion={{
             latitude: driver.location.location.lat,
             longitude: driver.location.location.lng,

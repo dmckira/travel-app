@@ -2,8 +2,9 @@ import React from 'react'
 import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {GOOGLE_MAPS_KEY} from '@env';
+import * as Location from 'expo-location';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOrigin, selectDestination, setDestination, selectUser } from '../slices/navSlice';
+import { setOrigin, selectOrigin, selectDestination, setDestination, selectUser } from '../slices/navSlice';
 import { firebase } from '../firebase-config';
 
 const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
@@ -18,6 +19,25 @@ const TaxiForm = ({navigation}) => {
   const requestDriver = async () => {
     if (!origin || !destination || !user) return;
 
+    let {status} = await Location.requestForegroundPermissionsAsync();
+    if(status !== 'granted'){
+      alert('Activa los permisos de ubicación');
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({})
+    const current = {
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    }
+
+    let address = await Location.reverseGeocodeAsync({latitude: current.lat, longitude: current.lng});
+    const description = `${address[0].street}, ${address[0].streetNumber}`
+
+    dispatch(setOrigin({
+      description,
+      location: current,
+    }))
+
     await firebase.firestore().collection('movements')
       .doc(firebase.auth().currentUser.uid)
       .set({
@@ -28,7 +48,10 @@ const TaxiForm = ({navigation}) => {
           role: user.user.role,
           cel: user.user.cel,
         },
-        origin,
+        origin: {
+          description,
+          location: current,
+        },
         destination,
         state: 'Pending',
       })

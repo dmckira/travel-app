@@ -1,11 +1,12 @@
 import { Animated, LayoutAnimation, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+import * as Location from 'expo-location';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { toggleAnimation } from '../animations/toggleAnimation';
 import { firebase } from '../firebase-config';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, setUser, setMovement, selectOrigin } from '../slices/navSlice';
+import { selectUser, setUser, setMovement, selectOrigin, setOrigin } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const DescriptionItem = ({ id, title, origin, destination, userId, hide, important }) => {
@@ -33,6 +34,25 @@ const DescriptionItem = ({ id, title, origin, destination, userId, hide, importa
   });
 
   const handleTakenMovement = async () => {
+    let {status} = await Location.requestForegroundPermissionsAsync();
+    if(status !== 'granted'){
+      alert('Activa los permisos de ubicación');
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({})
+    const current = {
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    }
+
+    let address = await Location.reverseGeocodeAsync({latitude: current.lat, longitude: current.lng});
+    const description = `${address[0].street}, ${address[0].streetNumber}`
+
+    dispatch(setOrigin({
+      description,
+      location: current,
+    }))
+
     await firebase.firestore().collection('users').doc(auth().currentUser.uid).get()
       .then(user => {
         dispatch(setUser({
@@ -49,7 +69,7 @@ const DescriptionItem = ({ id, title, origin, destination, userId, hide, importa
           email: user.user.email,
           role: user.user.role,
           placa: user.user.placa,
-          location: originDriver.location,
+          location: current,
         }
       });
 

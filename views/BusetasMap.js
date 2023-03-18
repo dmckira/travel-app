@@ -1,151 +1,38 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity, Image } from 'react-native';
 import Modal from 'react-native-modal';
-import Geolocation from 'react-native-geolocation-service';
-import * as Location from 'expo-location';
 import MapView, {Marker,Polyline,LatLng} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GOOGLE_MAPS_KEY } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, selectOrigin, setOrigin, setTravelTimeInformation, selectMovement, selectTravelTimeInformation } from '../slices/navSlice';
+import { selectOrigin, setTravelTimeInformation, selectMovement, selectTravelTimeInformation } from '../slices/navSlice';
 import { firebase } from '../firebase-config';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 
-const carImage = require('../assets/images/car.png');
+const busImage = require('../assets/images/bus.png');
 const userImage = require('../assets/images/user.png');
 const travelLogo = require('../assets/images/logotipo-travel-shadow.png');
 
-const DriverMap = ({navigation}) => {
+const BusetasMap = ({navigation}) => {
   const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  const auth = firebase.auth;
   const movement = useSelector(selectMovement);
   const time = useSelector(selectTravelTimeInformation);
-  //const originDriver = useSelector(selectOrigin);
-  const origin = movement.movement.origin;
-  const destination = movement.movement.destination;
+  const origin = useSelector(selectOrigin);
+  const originBuseta = movement.movement.origin;
   const [arrive, setMovement] = useState(false)
-  const [originDriver, setDriverLocation] = useState(null);
-  //const [isMounted, setIsMounted] = useState(false);
-  //const [intervalId, setIntervalId] = useState(null);
   const mapRef = useRef(null);
-
-  useEffect(() => {
-    const watchId = Geolocation.watchPosition(
-      position => {
-        handleDriverLocationUpdate({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, interval: 5000, fastestInterval: 2000 }
-    );
-
-    return () => {
-      Geolocation.clearWatch(watchId);
-    }
-  }, []);
-
-  const handleDriverLocationUpdate = async (location) => {
-    alert(location)
-    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
-    .update({
-      driver: {
-        id: auth().currentUser.uid,
-        name: user.user.name,
-        email: user.user.email,
-        role: user.user.role,
-        placa: user.user.placa,
-        location: location,
-      }
-    });
-
-    setDriverLocation(location);
-  }
-
-  /* const fetchLocation = useCallback(async () => {
-    let {status} = await Location.requestForegroundPermissionsAsync();
-    if(status !== 'granted'){
-      alert('Activa los permisos de ubicación');
-      return;
-    }
-    let location = await Location.getCurrentPositionAsync({})
-    const current = {
-      lat: location.coords.latitude,
-      lng: location.coords.longitude
-    }
-
-    let address = await Location.reverseGeocodeAsync({latitude: current.lat, longitude: current.lng});
-    const description = `${address[0].street}, ${address[0].streetNumber}`
-
-    dispatch(setOrigin({
-      description,
-      location: current,
-    }))
-
-    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
-    .update({
-      driver: {
-        id: auth().currentUser.uid,
-        name: user.user.name,
-        email: user.user.email,
-        role: user.user.role,
-        placa: user.user.placa,
-        location: originDriver.location,
-      }
-    });
-  }, []); */
-
-  /* useEffect(() => {
-    setIsMounted(true);
-    return () => {
-      setIsMounted(false);
-    };
-  }, []); */
   
-  /* useEffect(() => {
-    firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
-      querySnapshot.docs.forEach(doc => {
-        if (doc.id === movement.movement.user.id) {
-          if(doc.data().state !== 'Arrive') {
-            const id = setInterval(fetchLocation, 15000);
-            setIntervalId(id);
-          }
-        }
-      });
-    })
-    return () => clearInterval(intervalId);
-  }, [fetchLocation, isMounted]); */
-
-  /* useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
-      clearInterval(intervalId);
-    });
-
-    return unsubscribe;
-  }, [navigation, intervalId]); */
-
-  const driverArrive = async () => {
+  /* const driverArrive = async () => {
     await firebase.firestore().collection('movements').doc(movement.movement.user.id)
     .update({
       state: 'Arrive',
     });
     setMovement(true);
-  }
-
-  /* const stopInterval = () => {
-    clearInterval(intervalId);
   } */
 
-  const requestEnd = async () => {
-    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
-    .update({
-      state: 'Done',
-    });
-    //stopInterval();
-    navigation.navigate('Driver')
+  const comeBack = async () => {
+    navigation.navigate('Busetas')
   }
 
   return (
@@ -154,19 +41,13 @@ const DriverMap = ({navigation}) => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          /* initialRegion={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }} */
         >
-          {originDriver && (
+          {originBuseta?.location && (
             <Marker
-              image={carImage}
+              image={busImage}
               coordinate={{
-                latitude: originDriver.lat,
-                longitude: originDriver.lng,
+                latitude: originBuseta.location.lat,
+                longitude: originBuseta.location.lng,
               }}
             />
           )}
@@ -180,16 +61,7 @@ const DriverMap = ({navigation}) => {
               identifier='origin'
             />
           )}
-          {destination?.location && (
-            <Marker
-              coordinate={{
-                latitude: destination.location.lat,
-                longitude: destination.location.lng,
-              }}
-              identifier='destination'
-            />
-          )}
-          {origin && destination && (
+          {origin && originBuseta && (
             <>
               <MapViewDirections
                 origin = {{
@@ -197,8 +69,8 @@ const DriverMap = ({navigation}) => {
                   longitude: origin.location.lng,
                 }}
                 destination = {{
-                  latitude: destination.location.lat,
-                  longitude: destination.location.lng,
+                  latitude: originBuseta.location.lat,
+                  longitude: originBuseta.location.lng,
                 }}
                 apikey = {GOOGLE_MAPS_KEY}
                 strokeColor = "orange"
@@ -213,8 +85,8 @@ const DriverMap = ({navigation}) => {
               />
               <MapViewDirections
                 origin = {{
-                  latitude: originDriver.lat,
-                  longitude: originDriver.lng,
+                  latitude: originBuseta.location.lat,
+                  longitude: originBuseta.location.lng,
                 }}
                 destination = {{
                   latitude: origin.location.lat,
@@ -239,16 +111,16 @@ const DriverMap = ({navigation}) => {
             <Image style={styles.imageLogo} source={travelLogo}></Image>
           </View>
           <View style={styles.border}/>
-          {movement.movement.driver ? (
+          {movement.movement.name ? (
             <ScrollView style={styles.containerBody}>
               <View style={styles.titleContainer}>
                 <Icon color='#0F6769' name='account-circle' size={40} style={{marginRight: 10}} />
-                  <Text style={styles.title}>{movement.movement.user.name} - {movement.movement.user.cel}</Text>
+                  <Text style={styles.title}>{movement.movement.name} - {movement.movement.cel}</Text>
                   
               </View>
               <View style={styles.body}>
                 <Text style={styles.bodyText}>Desde: {movement.movement.origin.description}</Text>
-                <Text style={styles.bodyText}>Hasta: {movement.movement.destination.description}</Text>
+                {/* <Text style={styles.bodyText}>Hasta: {movement.movement.destination.description}</Text> */}
                 {!arrive && time ? (
                   <View style={styles.bodyTimer}>
                     <Icon color='#0F6769' name='timer' size={25} style={{marginRight: 5}} />
@@ -262,9 +134,9 @@ const DriverMap = ({navigation}) => {
           <View style={ styles.containerButton }>
             <Pressable
               style={ styles.button }
-              onPress={!arrive ? driverArrive : requestEnd}
+              onPress={comeBack}
             >
-              <Text style={ styles.text }>{!arrive ? '¡Ya llegue!' : 'Recorrido finalizado'}</Text>
+              <Text style={ styles.text }>Volver</Text>
             </Pressable>
           </View>
         </SafeAreaView>
@@ -460,4 +332,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DriverMap
+export default BusetasMap
