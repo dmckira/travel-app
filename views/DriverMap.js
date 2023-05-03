@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Button, SafeAreaView, ScrollView, TextInput, Pressable, TouchableOpacity, Image } from 'react-native';
-import Modal from 'react-native-modal';
-import Geolocation from 'react-native-geolocation-service';
 import * as Location from 'expo-location';
-import MapView, {Marker,Polyline,LatLng} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GOOGLE_MAPS_KEY } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser, selectOrigin, setOrigin, setTravelTimeInformation, selectMovement, selectTravelTimeInformation } from '../slices/navSlice';
@@ -22,55 +19,19 @@ const DriverMap = ({navigation}) => {
   const auth = firebase.auth;
   const movement = useSelector(selectMovement);
   const time = useSelector(selectTravelTimeInformation);
-  //const originDriver = useSelector(selectOrigin);
+  const originDriver = useSelector(selectOrigin);
   const origin = movement.movement.origin;
   const destination = movement.movement.destination;
   const [arrive, setMovement] = useState(false)
-  const [originDriver, setDriverLocation] = useState(null);
-  //const [isMounted, setIsMounted] = useState(false);
-  //const [intervalId, setIntervalId] = useState(null);
   const mapRef = useRef(null);
 
   useEffect(() => {
-    const watchId = Geolocation.watchPosition(
-      position => {
-        handleDriverLocationUpdate({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, interval: 5000, fastestInterval: 2000 }
-    );
+    const intervalId = setInterval(fetchLocation, 2000);
 
-    return () => {
-      Geolocation.clearWatch(watchId);
-    }
+    return () => clearInterval(intervalId);
   }, []);
 
-  const handleDriverLocationUpdate = async (location) => {
-    alert(location)
-    await firebase.firestore().collection('movements').doc(movement.movement.user.id)
-    .update({
-      driver: {
-        id: auth().currentUser.uid,
-        name: user.user.name,
-        email: user.user.email,
-        role: user.user.role,
-        placa: user.user.placa,
-        location: location,
-      }
-    });
-
-    setDriverLocation(location);
-  }
-
-  /* const fetchLocation = useCallback(async () => {
-    let {status} = await Location.requestForegroundPermissionsAsync();
-    if(status !== 'granted'){
-      alert('Activa los permisos de ubicación');
-      return;
-    }
+  const fetchLocation = useCallback(async () => {
     let location = await Location.getCurrentPositionAsync({})
     const current = {
       lat: location.coords.latitude,
@@ -93,39 +54,10 @@ const DriverMap = ({navigation}) => {
         email: user.user.email,
         role: user.user.role,
         placa: user.user.placa,
-        location: originDriver.location,
+        location: current,
       }
     });
-  }, []); */
-
-  /* useEffect(() => {
-    setIsMounted(true);
-    return () => {
-      setIsMounted(false);
-    };
-  }, []); */
-  
-  /* useEffect(() => {
-    firebase.firestore().collection('movements').onSnapshot(querySnapshot => {
-      querySnapshot.docs.forEach(doc => {
-        if (doc.id === movement.movement.user.id) {
-          if(doc.data().state !== 'Arrive') {
-            const id = setInterval(fetchLocation, 15000);
-            setIntervalId(id);
-          }
-        }
-      });
-    })
-    return () => clearInterval(intervalId);
-  }, [fetchLocation, isMounted]); */
-
-  /* useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
-      clearInterval(intervalId);
-    });
-
-    return unsubscribe;
-  }, [navigation, intervalId]); */
+  }, []);
 
   const driverArrive = async () => {
     await firebase.firestore().collection('movements').doc(movement.movement.user.id)
@@ -135,16 +67,11 @@ const DriverMap = ({navigation}) => {
     setMovement(true);
   }
 
-  /* const stopInterval = () => {
-    clearInterval(intervalId);
-  } */
-
   const requestEnd = async () => {
     await firebase.firestore().collection('movements').doc(movement.movement.user.id)
     .update({
       state: 'Done',
     });
-    //stopInterval();
     navigation.navigate('Driver')
   }
 
@@ -161,12 +88,12 @@ const DriverMap = ({navigation}) => {
             longitudeDelta: 0.005,
           }} */
         >
-          {originDriver && (
+          {originDriver?.location && (
             <Marker
               image={carImage}
               coordinate={{
-                latitude: originDriver.lat,
-                longitude: originDriver.lng,
+                latitude: originDriver.location.lat,
+                longitude: originDriver.location.lng,
               }}
             />
           )}
@@ -213,8 +140,8 @@ const DriverMap = ({navigation}) => {
               />
               <MapViewDirections
                 origin = {{
-                  latitude: originDriver.lat,
-                  longitude: originDriver.lng,
+                  latitude: originDriver.location.lat,
+                  longitude: originDriver.location.lng,
                 }}
                 destination = {{
                   latitude: origin.location.lat,

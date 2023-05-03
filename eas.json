@@ -7,7 +7,7 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
       },
       "distribution": "internal",
       "channel": "preview"
